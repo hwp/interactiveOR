@@ -1,0 +1,54 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+CostIdx	saldet.h	/^typedef pair<double, int> CostIdx;$/;"	t
+CostfIdx	saldet.h	/^typedef pair<float, int> CostfIdx;$/;"	t
+DISJOINT_SET	disjoint-set.h	20;"	d
+Region	saldet.h	/^  Region() { pixNum = 0;}$/;"	f	struct:Region
+Region	saldet.h	/^struct Region{$/;"	s
+SEGMENT_GRAPH	segment-graph.h	20;"	d
+SEGMENT_IMAGE	segment-image.h	22;"	d
+SegmentImage	segment-image.cpp	/^int SegmentImage(const Mat &_src3f, Mat &pImgInd, double sigma, double c, int min_size)$/;"	f
+THRESHOLD	segment-graph.h	27;"	d
+___SALDET_SALDET_H_	saldet.h	8;"	d
+a	segment-graph.h	/^	int a, b;$/;"	m	struct:__anon2
+b	segment-graph.h	/^	int a, b;$/;"	m	struct:__anon2
+buildRegions	saldet.cpp	/^void buildRegions(const Mat& regIdx1i, vector<Region>& regs, const Mat& colorIdx1i, int colorNum) {$/;"	f
+centroid	saldet.h	/^  Point2d centroid;$/;"	m	struct:Region
+diff	segment-image.cpp	/^static inline float diff(const Mat &img3f, int x1, int y1, int x2, int y2)$/;"	f	file:
+edge	segment-graph.h	/^} edge;$/;"	t	typeref:struct:__anon2
+elts	disjoint-set.h	/^	uni_elt *elts;$/;"	m	class:universe
+find	disjoint-set.h	/^__inline int universe::find(int x) {$/;"	f	class:universe
+freIdx	saldet.h	/^  vector<CostfIdx> freIdx;  \/\/ Frequency of each color and its index$/;"	m	struct:Region
+getRC	saldet.cpp	/^Mat getRC(const Mat& img3f) {$/;"	f
+getRC	saldet.cpp	/^Mat getRC(const Mat& img3f, double sigmaDist, double segK, int segMinSize, double segSigma) {$/;"	f
+join	disjoint-set.h	/^__inline void universe::join(int x, int y) {$/;"	f	class:universe
+main	saldet.cpp	/^int main(int argc, char* argv[]) {$/;"	f
+num	disjoint-set.h	/^	int num;$/;"	m	class:universe
+num_sets	disjoint-set.h	/^	int num_sets() const { return num; }$/;"	f	class:universe
+operator <	segment-graph.h	/^__inline bool operator<(const edge &a, const edge &b) {$/;"	f
+p	disjoint-set.h	/^	int p;$/;"	m	struct:__anon1
+pixNum	saldet.h	/^  int pixNum;  \/\/ Number of pixels$/;"	m	struct:Region
+pntSqrDist	saldet.h	/^template<class T> inline T pntSqrDist(const Point_<T>& p1, const Point_<T>& p2) {$/;"	f
+quantize	saldet.cpp	/^int quantize(const Mat& img3f, Mat& idx1i, Mat& _color3f, Mat& _colorNum, double ratio)$/;"	f
+rank	disjoint-set.h	/^	int rank;$/;"	m	struct:__anon1
+regionContrast	saldet.cpp	/^void regionContrast(const vector<Region>& regs, const Mat& color3fv, Mat& regSal1d, double sigmaDist) {$/;"	f
+segment_graph	segment-graph.h	/^__inline universe *segment_graph(int num_vertices, int num_edges, edge *edges, float c) { $/;"	f
+size	disjoint-set.h	/^	int size(int x) const { return elts[x].size; }$/;"	f	class:universe
+size	disjoint-set.h	/^	int size;$/;"	m	struct:__anon1
+sqr	saldet.h	/^template<typename T> inline T sqr(T x) {$/;"	f
+sqr	segment-image.cpp	/^static inline float sqr(float x) { $/;"	f	file:
+uni_elt	disjoint-set.h	/^} uni_elt;$/;"	t	typeref:struct:__anon1
+universe	disjoint-set.h	/^__inline universe::universe(int elements) {$/;"	f	class:universe
+universe	disjoint-set.h	/^class universe {$/;"	c
+vecD	saldet.h	/^typedef vector<double> vecD;$/;"	t
+vecDist3	saldet.h	/^template<class T> inline T vecDist3(const Vec<T, 3>& v1, const Vec<T, 3>& v2) {$/;"	f
+vecF	saldet.h	/^typedef vector<float> vecF;$/;"	t
+vecI	saldet.h	/^typedef vector<int> vecI;$/;"	t
+vecS	saldet.h	/^typedef vector<string> vecS;$/;"	t
+vecSqrDist3	saldet.h	/^template<class T> inline T vecSqrDist3(const Vec<T, 3>& v1, const Vec<T, 3>& v2) {$/;"	f
+w	segment-graph.h	/^	float w;$/;"	m	struct:__anon2
+~universe	disjoint-set.h	/^__inline universe::~universe() {$/;"	f	class:universe
