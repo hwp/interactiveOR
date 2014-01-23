@@ -18,10 +18,10 @@ double hann_window(size_t n, size_t size) {
 double (*window)(size_t, size_t) = hann_window;
 
 void stft(double* data, size_t length, size_t window_size,
-    size_t step, double** result) {
+    size_t shift, double** result) {
   int i;
-  for (i = 0; i * step + window_size < length; i++) {
-    double* offset = data + i * step;
+  for (i = 0; i * shift + window_size < length; i++) {
+    double* offset = data + i * shift;
     size_t j;
     for (j = 0; j < window_size; j++) {
       REAL(result[i], j) = offset[j] * window(j, window_size);
