@@ -12,7 +12,7 @@ int main(int argc, char** argv) {
 
   unsigned int channels = 1;
   size_t window_size;
-  size_t step;
+  size_t shift;
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
   unsigned long int count = 1;
 
@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
         window_size = atoi(optarg);
         break;
       case 's':
-        step = atoi(optarg);
+        shift = atoi(optarg);
         break;
       case 'f':
         format = snd_pcm_format_value(optarg);
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
   }
 
   if (showhelp || argc - optind < 1) {
-    fprintf(stderr, "Usage: %s [-w window_size] [-s step] "
+    fprintf(stderr, "Usage: %s [-w window_size] [-s shift] "
         "[-f format] <inputFile>\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
@@ -64,33 +64,25 @@ int main(int argc, char** argv) {
   fclose(input);
 
   // Transform
-  size_t now = (count - window_size) / step + 1;
-  double** result = malloc(now * sizeof(double*));
-  size_t i;
-  for (i = 0; i < now; i++) {
-    result[i] = malloc(window_size * 2 * sizeof(double));
-  }
+  size_t nos = number_of_spectrum(count, window_size, shift);
+  TimeFreq* tf = alloc_tf(window_size, nos);
 
-  fprintf(stderr, "%s:%d\n", __FILE__, __LINE__); // FIXME:REMOVE
-  stft(data[0], count, window_size, step, result);
+  stft(data[0], count, window_size, shift, tf);
 
-  fprintf(stderr, "%s:%d\n", __FILE__, __LINE__); // FIXME:REMOVE
-  printf("# name: a\n# type: complex matrix\n"
-      "# rows: %d\n# columns: %d\n", window_size, now);
-  size_t j;
+  printf("# name: spec\n# type: complex matrix\n"
+      "# rows: %d\n# columns: %d\n", window_size, nos);
+  size_t i, j;
   for (j = 0; j < window_size; j++) {
-    for (i = 0; i < now; i++) {
-      printf("(%g,%g) ", REAL(result[i], j), IMAG(result[i], j));
+    for (i = 0; i < nos; i++) {
+      printf("(%g,%g) ", get_real(get_spectra(tf, i), j),
+          get_imag(get_spectra(tf, i), j));
     }
     printf("\n");
   }
 
   // Free memory
   freeData(data, channels);
-  for (i = 0; i < now; i++) {
-    free(result[i]);
-  }
-  free(result);
+  free_tf(tf);
 
   exit(EXIT_SUCCESS);
 }
