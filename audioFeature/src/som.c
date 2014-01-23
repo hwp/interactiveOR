@@ -25,6 +25,11 @@ double f_euc_dis(double* f1, double* f2, size_t size) {
 // Feature Distance
 double (*fdistance)(double*, double*, size_t) = f_euc_dis;
 
+
+double* get_weight(SOM* net, int row, int col) {
+  return net->weight + (row * net->cols + col) * (s)->dims;
+}
+
 SOM* som_alloc(size_t rows, size_t cols, size_t dims) {
   double* w = malloc(rows * cols * dims * sizeof(double));
   if (w == NULL) {
@@ -56,7 +61,7 @@ int som_map(SOM* net, double* data) {
   int r = 0;
   for (i = 0; i < net->rows; i++) {
     for (j = 0; j < net->cols; j++) {
-      double d = fdistance(GET_WEIGHT(net, i, j), data, net->dims);
+      double d = fdistance(get_weight(net, i, j), data, net->dims);
       if (d < mind) {
         mind = d;
         r = i * net->cols + j;

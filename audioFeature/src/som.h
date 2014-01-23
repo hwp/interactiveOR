@@ -17,8 +17,7 @@ typedef struct {
   double* weight;
 } SOM;
 
-#define GET_WEIGHT(s, r, c) \
-  s->weight + ((r * s->cols + c) * s->dims)
+double* get_weight(SOM* net, int row, int col);
 
 /**
  * Allocate memory for SOM.
