@@ -9,10 +9,16 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <gsl/gsl_rng.h>
+
+#define ALPHA_0 1.0
+#define SIGMA_0 5.0
+#define K       4.0
+
 // Euclidean Distance
-double f_euc_dis(double* f1, double* f2, size_t size) {
+double f_euc_dis(double* f1, double* f2, int size) {
   double s = 0;
-  size_t i;
+  int i;
   // TODO floating-point summation problem ignored.
   // Assume size is small.
   for (i = 0; i < size; i++) {
@@ -23,14 +29,14 @@ double f_euc_dis(double* f1, double* f2, size_t size) {
 }
 
 // Feature Distance
-double (*fdistance)(double*, double*, size_t) = f_euc_dis;
+double (*fdistance)(double*, double*, int) = f_euc_dis;
 
 
 double* get_weight(SOM* net, int row, int col) {
-  return net->weight + (row * net->cols + col) * (s)->dims;
+  return net->weight + (row * net->cols + col) * net->dims;
 }
 
-SOM* som_alloc(size_t rows, size_t cols, size_t dims) {
+SOM* som_alloc(int rows, int cols, int dims) {
   double* w = malloc(rows * cols * dims * sizeof(double));
   if (w == NULL) {
     return NULL;
@@ -55,8 +61,88 @@ void som_free(SOM* net) {
   free(net);
 }
 
+double learn_rate(int noi, int total) {
+  double c = 0.01 * total;
+  return ALPHA_0 * c / (c + noi);
+}
+
+double neighborhood(int dx, int dy, int noi, int total) {
+  double s = SIGMA_0 - (SIGMA_0 - 1.0) * noi / total;
+  double s2 = s * s;
+  double k2 = K * K;
+  double d2 = dx * dx + dy * dy;
+  return k2 / (k2 - 1) * exp(-d2 / s2) -
+    1 / (k2 - 1) * exp(-d2 / (k2 * s2));
+}
+
+void update_weights(SOM* net, int bmu, double* data, int noi,
+    int total) {
+  int br = bmu / net->cols;
+  int bc = bmu % net->cols;
+  double a = learn_rate(noi, total);
+
+  int i, j, k;
+  for (i = 0; i < net->rows; i++) {
+    for (j = 0; j < net->cols; j++) {
+      double f = neighborhood(i - br, j - bc, noi, total) * a;
+      double* w = get_weight(net, i, j);
+      for (k = 0; k < net->dims; k++) {
+        w[k] += f * (data[k] - w[k]);
+      }
+    }
+  }
+}
+
+void som_train(SOM* net, double* data, int length, int iters) {
+  int i, j, k;
+
+  // Random initial value ranges in the sample range.
+  double* smin = malloc(net->dims * sizeof(double));
+  double* smax = malloc(net->dims * sizeof(double));
+  for (i = 0; i < net->dims; i++) {
+    smin[i] = INFINITY;
+    smax[i] = -INFINITY;
+    for (j = 0; j < length; j++) {
+      double x = data[j * net->dims + i];
+      if (x < smin[i]) {
+        smin[i] = x;
+      }
+      if (x > smax[i]) {
+        smax[i] = x;
+      }
+    }
+  }
+
+  gsl_rng_env_setup();
+  gsl_rng* r = gsl_rng_alloc(gsl_rng_default);
+
+  for (i = 0; i < net->rows; i++) {
+    for (j = 0; j < net->cols; j++) {
+      double* w = get_weight(net, i, j);
+      for (k = 0; k < net->dims; k++) {
+        w[k] = smin[k] + (smax[k] - smin[k]) * gsl_rng_uniform(r);
+      }
+    }
+  }
+
+  free(smin);
+  free(smax);
+  gsl_rng_free(r);
+
+  // Train 
+  for (i = 0; i < iters; i++) {
+    for (j = 0; j < length; j++) {
+      double* sample = data + j * net->dims;
+      // Best matching unit
+      int bmu = som_map(net, sample);
+      // Update weights
+      update_weights(net, bmu, sample, i, iters);
+    }
+  }
+}
+
 int som_map(SOM* net, double* data) {
-  size_t i, j;
+  int i, j;
   double mind = INFINITY;
   int r = 0;
   for (i = 0; i < net->rows; i++) {

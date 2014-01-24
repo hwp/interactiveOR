@@ -7,12 +7,10 @@
 #ifndef SOM_H_
 #define SOM_H_
 
-#include <stdlib.h>
-
 typedef struct {
-  size_t rows;  // Number of rows
-  size_t cols;  // Number of Columns
-  size_t dims;  // Input Dimension
+  int rows;  // Number of rows
+  int cols;  // Number of Columns
+  int dims;  // Input Dimension
 
   double* weight;
 } SOM;
@@ -23,7 +21,7 @@ double* get_weight(SOM* net, int row, int col);
  * Allocate memory for SOM.
  * Set rows, cols and dims. However, weight is not initialized.
  */
-SOM* som_alloc(size_t rows, size_t cols, size_t dims);
+SOM* som_alloc(int rows, int cols, int dims);
 
 /**
  * Free the allocated memory
@@ -36,8 +34,7 @@ void som_free(SOM* net);
  * this function.
  * Whole training data will be traversed iters times.
  */
-void som_train(SOM* net, double* data, size_t length,
-    size_t iters);
+void som_train(SOM* net, double* data, int length, int iters);
 
 /**
  * Given on sample of data (dimension = net->dims).
