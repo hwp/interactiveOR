@@ -158,3 +158,47 @@ int som_map(SOM* net, double* data) {
   return r;
 }
 
+int som_save(SOM* net, FILE* file) {
+  // FIXME : Endianness ignored
+  size_t r = 0;
+  r += fwrite(&(net->rows), sizeof(int), 1, file);
+  r += fwrite(&(net->cols), sizeof(int), 1, file);
+  r += fwrite(&(net->dims), sizeof(int), 1, file);
+  if (r != 3) {
+    return -1;
+  }
+  
+  int nmem = net->rows * net->cols * net->dims; 
+  r = fwrite(net->weight, sizeof(double), nmem, file);
+  if (r != nmem) {
+    return -1;
+  }
+
+  return 0;
+}
+
+SOM* som_load(FILE* file) {
+  int rows, cols, dims;
+  size_t r = 0;
+  r += fread(&rows, sizeof(int), 1, file);
+  r += fread(&cols, sizeof(int), 1, file);
+  r += fread(&dims, sizeof(int), 1, file);
+  if (r != 3) {
+    return NULL;
+  }
+
+  SOM* net = som_alloc(rows, cols, dims);
+  if (net == NULL) {
+    return NULL;
+  }
+  
+  int nmem = net->rows * net->cols * net->dims; 
+  r = fread(net->weight, sizeof(double), nmem, file);
+  if (r != nmem) {
+    som_free(net);
+    return NULL;
+  }
+
+  return net;
+}
+

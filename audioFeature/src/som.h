@@ -44,5 +44,19 @@ void som_train(SOM* net, double* data, int length, int iters);
  */
 int som_map(SOM* net, double* data);
 
+/**
+ * Save SOM to file.
+ * 
+ * @return 0 on success
+ */
+int som_save(SOM* net, FILE* file);
+
+/**
+ * Load SOM from file. Memory is allocated and should be freed.
+ *
+ * @return null if error occured.
+ */
+SOM* som_load(FILE* file);
+
 #endif  // SOM_H_
 
