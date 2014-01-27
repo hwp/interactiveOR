@@ -14,10 +14,9 @@ int main(int argc, char** argv) {
   size_t window_size;
   size_t shift;
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
-  unsigned long int count = 1;
 
   int opt;
-  while ((opt = getopt(argc, argv, "hw:s:f:C:")) != -1) {
+  while ((opt = getopt(argc, argv, "hw:s:f:")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -30,9 +29,6 @@ int main(int argc, char** argv) {
         break;
       case 'f':
         format = snd_pcm_format_value(optarg);
-        break;
-      case 'C':
-        count = atol(optarg);
         break;
       default: /* '?' */
         showhelp = 1;
@@ -59,7 +55,8 @@ int main(int argc, char** argv) {
 
   // Load Audio File
   double** data;
-  count = readFile(input, count, channels, format, &data);
+  unsigned long int count = pcm_size(input, channels, format);
+  count = read_file(input, count, channels, format, &data);
   fprintf(stderr, "%lu samples read\n", count);
   fclose(input);
 
@@ -81,7 +78,7 @@ int main(int argc, char** argv) {
   }
 
   // Free memory
-  freeData(data, channels);
+  free_data(data, channels);
   free_tf(tf);
 
   exit(EXIT_SUCCESS);

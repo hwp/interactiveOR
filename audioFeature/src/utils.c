@@ -19,7 +19,7 @@ int isFloat(snd_pcm_format_t format) {
       || format == SND_PCM_FORMAT_FLOAT64_BE);
 }
 
-double pcmToDouble(snd_pcm_format_t format, void* data) {
+double pcm_to_double(snd_pcm_format_t format, void* data) {
   int format_bits = snd_pcm_format_width(format);
   int bps = format_bits / 8; /* bytes per sample */
   int big_endian = snd_pcm_format_big_endian(format) == 1;
@@ -117,7 +117,7 @@ double pcmToDouble(snd_pcm_format_t format, void* data) {
   return value;
 }
 
-int doubleToPCM(snd_pcm_format_t format, double value, void* data) {
+int double_to_pcm(snd_pcm_format_t format, double value, void* data) {
   assert(value <= 1.0 && value >= -1.0);
 
   int format_bits = snd_pcm_format_width(format);
@@ -228,7 +228,7 @@ int doubleToPCM(snd_pcm_format_t format, double value, void* data) {
   return 0;
 }
 
-unsigned long int readFile(FILE* file, unsigned long int count,
+unsigned long int read_file(FILE* file, unsigned long int count,
     unsigned int channels, snd_pcm_format_t format,
     double*** data) {
   int rc; // return code
@@ -257,7 +257,7 @@ unsigned long int readFile(FILE* file, unsigned long int count,
       break;
     }
     for (c = 0; c < channels; c++) {
-      (*data)[c][readCount] = pcmToDouble(format, buffer + (c * sampleSize));
+      (*data)[c][readCount] = pcm_to_double(format, buffer + (c * sampleSize));
     }
   }
   free(buffer);
@@ -265,7 +265,7 @@ unsigned long int readFile(FILE* file, unsigned long int count,
   return readCount;
 }
 
-void freeData(double** data, unsigned int channels) {
+void free_data(double** data, unsigned int channels) {
   int i;
   for (i = 0; i < channels; i++) {
     free(data[i]);
@@ -273,7 +273,7 @@ void freeData(double** data, unsigned int channels) {
   free(data);
 }
 
-unsigned long int writeFile(FILE* file, unsigned long int count,
+unsigned long int write_file(FILE* file, unsigned long int count,
     unsigned int channels, snd_pcm_format_t format, double** data) {
   int rc; // return code
 
@@ -291,7 +291,7 @@ unsigned long int writeFile(FILE* file, unsigned long int count,
   unsigned int c;
   for (writeCount = 0; writeCount < count; writeCount++) {
     for (c = 0; c < channels; c++) {
-      doubleToPCM(format, data[c][writeCount], buffer + (c * sampleSize));
+      double_to_pcm(format, data[c][writeCount], buffer + (c * sampleSize));
     }
 
     size_t rs = fwrite(buffer, 1, bufferSize, file);
@@ -304,3 +304,11 @@ unsigned long int writeFile(FILE* file, unsigned long int count,
   return writeCount;
 }
 
+unsigned long int pcm_size(FILE* file, unsigned int channels,
+    snd_pcm_format_t format) {
+  fseek(file, 0L, SEEK_END);
+  long size = ftell(file);
+  fseek(file, 0L, SEEK_SET);
+
+  return size / (channels * snd_pcm_format_physical_width(format) / 8);
+}
