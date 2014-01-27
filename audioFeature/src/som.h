@@ -7,6 +7,8 @@
 #ifndef SOM_H_
 #define SOM_H_
 
+#include <stdio.h>
+
 typedef struct {
   int rows;  // Number of rows
   int cols;  // Number of Columns

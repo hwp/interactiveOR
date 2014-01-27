@@ -7,8 +7,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <gsl/gsl_math.h>
-#include <gsl/gsl_errno.h>
 #include <gsl/gsl_fft_complex.h>
+#include <gsl/gsl_rng.h>
 
 #define REAL(z,i) ((z)[2*(i)])
 #define IMAG(z,i) ((z)[2*(i)+1])
@@ -43,6 +43,17 @@ int main (int argc, char** argv) {
   printf("\n");
   
   free(data);
+  
+  gsl_rng_env_setup();
+  gsl_rng* r = gsl_rng_alloc(gsl_rng_default);
+  long seed = time(NULL) * getpid();
+  gsl_rng_set(r, seed);
+
+  for (i = 0; i < 10; i++) {
+    printf("%g\n", gsl_rng_uniform(r));
+  }
+  
+  gsl_rng_free(r);
 
   return 0 ;
 }
