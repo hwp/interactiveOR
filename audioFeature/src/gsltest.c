@@ -9,6 +9,8 @@
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_fft_complex.h>
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
 
 #define REAL(z,i) ((z)[2*(i)])
 #define IMAG(z,i) ((z)[2*(i)+1])
@@ -53,6 +55,9 @@ int main (int argc, char** argv) {
     printf("%g\n", gsl_rng_uniform(r));
   }
   
+  for (i = 0; i < 10; i++) {
+    printf("%g\n", gsl_ran_exponential(r, 0.5));
+  }
   gsl_rng_free(r);
 
   return 0 ;

@@ -9,6 +9,7 @@
 #include <assert.h>
 
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
 
 #define DIMS 2
 #define NSAMPLE 1000
@@ -35,7 +36,7 @@ int main(int argc, char** argv) {
   printf("# columns: %d\n", DIMS);
   for (i = 0; i < NSAMPLE; i++) {
     double x = gsl_rng_uniform(r);
-    double y = gsl_rng_uniform(r);
+    double y = gsl_ran_exponential(r, 1.0);
     y = y * 2 + x;
 
     data[i * DIMS] = x;

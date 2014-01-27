@@ -13,7 +13,7 @@
 
 #define ALPHA_0 1.0
 #define SIGMA_0 5.0
-#define K       4.0
+#define K       10.0
 
 // Euclidean Distance
 double f_euc_dis(double* f1, double* f2, int size) {
