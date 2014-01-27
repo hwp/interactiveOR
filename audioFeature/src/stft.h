@@ -7,8 +7,6 @@
 #ifndef STFT_H_
 #define STFT_H_
 
-#include <stdlib.h>
-
 #define REAL(z,i) ((z)[2*(i)])
 #define IMAG(z,i) ((z)[2*(i) + 1])
 
@@ -24,9 +22,9 @@ typedef double* Spectra;
  * Time-Frequency Representation
  */
 typedef struct {
-  size_t window_size;
-  size_t shift;
-  size_t nos;       // Number of Spectrum (Windows) 
+  int window_size;
+  int shift;
+  int nos;       // Number of Spectrum (Windows) 
   
   Spectra* data;
 } TimeFreq;
@@ -35,7 +33,7 @@ typedef struct {
  * Allocate memory for TimeFreq.
  * Only window_size and nos are initiated.
  */
-TimeFreq* alloc_tf(size_t window_size, size_t nos);
+TimeFreq* alloc_tf(int window_size, int nos);
 
 void free_tf(TimeFreq* tfr);
 
@@ -45,7 +43,7 @@ double get_real(Spectra spec, int index);
 double get_imag(Spectra spec, int index);
 void set_value(Spectra spec, int index, double real, double imag);
 
-size_t number_of_spectrum(size_t length, size_t window_size, size_t shift);
+int number_of_spectrum(int length, int window_size, int shift);
 
 /**
  * Calculate the Short Time Fourier Transform of the signal data.
@@ -54,8 +52,8 @@ size_t number_of_spectrum(size_t length, size_t window_size, size_t shift);
  * function. 
  * The size of result is number of windows * (2 * size of window). 
  */
-void stft(double* data, size_t length, size_t window_size,
-    size_t shift, TimeFreq* result);
+void stft(double* data, int length, int window_size,
+    int shift, TimeFreq* result);
  
 /**
  * Reconstruct the time-domain signal using ifft and
