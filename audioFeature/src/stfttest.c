@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
   int showhelp = 0;
 
   unsigned int channels = 1;
-  size_t window_size;
-  size_t shift;
+  int window_size;
+  int shift;
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
 
   int opt;
@@ -61,14 +61,14 @@ int main(int argc, char** argv) {
   fclose(input);
 
   // Transform
-  size_t nos = number_of_spectrum(count, window_size, shift);
+  int nos = number_of_spectrum(count, window_size, shift);
   TimeFreq* tf = alloc_tf(window_size, nos);
 
   stft(data[0], count, window_size, shift, tf);
 
   printf("# name: spec\n# type: complex matrix\n"
       "# rows: %d\n# columns: %d\n", window_size, nos);
-  size_t i, j;
+  int i, j;
   for (j = 0; j < window_size; j++) {
     for (i = 0; i < nos; i++) {
       printf("(%g,%g) ", get_real(get_spectra(tf, i), j),
