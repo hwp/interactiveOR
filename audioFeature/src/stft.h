@@ -7,9 +7,6 @@
 #ifndef STFT_H_
 #define STFT_H_
 
-#define REAL(z,i) ((z)[2*(i)])
-#define IMAG(z,i) ((z)[2*(i) + 1])
-
 /**
  * A spectra is a vector of complex numbers.
  * It is a result of a short-time dft of a signal.
