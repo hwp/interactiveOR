@@ -7,6 +7,9 @@ target_link_libraries(gsltest ${GSL_LIBRARIES})
 add_executable(stfttest stfttest.c stft.c utils.c)
 target_link_libraries(stfttest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
 
+add_executable(istfttest istfttest.c stft.c utils.c)
+target_link_libraries(istfttest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+
 add_executable(somtest somtest.c som.c)
 target_link_libraries(somtest m ${GSL_LIBRARIES})
 
