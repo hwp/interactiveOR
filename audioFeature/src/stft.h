@@ -53,9 +53,13 @@ void stft(double* data, int length, int window_size,
     int shift, TimeFreq* result);
  
 /**
+ * Inverse STFT.
  * Reconstruct the time-domain signal using ifft and
  * overlap and add.
+ * Memory for the data (e.g. time-domain signal) should be allocated
+ * before calling this function. Its length shall be 
+ *   tf->nos * tf->shift + tf->window_size.
  */
-void istft(TimeFreq* tf);
+void istft(TimeFreq* tf, double* data);
 
 #endif  // STFT_H_

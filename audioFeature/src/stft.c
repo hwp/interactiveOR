@@ -7,7 +7,9 @@
 #include "stft.h"
 
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
+
 #include <gsl/gsl_fft_complex.h>
 
 double hann_window(int n, int size) {
@@ -94,5 +96,28 @@ void stft(double* data, int length, int window_size, int shift,
     }
     gsl_fft_complex_radix2_forward(s, 1, window_size);
   }
+}
+
+void istft(TimeFreq* tf, double* data) {
+  int i, j;
+  for (i = 0; i < tf->nos * tf->shift + tf->window_size; i++) {
+    data[i] = 0;
+  }
+
+  size_t spsize = 2 * tf->window_size * sizeof(double);
+  Spectra buf = malloc(spsize);
+
+  double scale = 0.5 * tf->window_size / tf->shift;
+
+  for (i = 0; i < tf->nos; i++) {
+    memcpy(buf, tf->data[i], spsize);
+    gsl_fft_complex_radix2_inverse(buf, 1, tf->window_size);
+    for (j = 0; j < tf->window_size; j++) {
+      data[i * tf->shift + j] += get_real(buf, j);
+      // Ignore imaginary part
+    }
+  }
+
+  free(buf);
 }
 
