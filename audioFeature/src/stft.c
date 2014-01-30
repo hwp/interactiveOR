@@ -113,7 +113,7 @@ void istft(TimeFreq* tf, double* data) {
     memcpy(buf, tf->data[i], spsize);
     gsl_fft_complex_radix2_inverse(buf, 1, tf->window_size);
     for (j = 0; j < tf->window_size; j++) {
-      data[i * tf->shift + j] += get_real(buf, j);
+      data[i * tf->shift + j] += get_real(buf, j) / scale;
       // Ignore imaginary part
     }
   }
