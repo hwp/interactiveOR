@@ -9,6 +9,7 @@
 #include "som.h"
 
 #include <math.h>
+#include <string.h>
 
 #define DEFAULT_OUTFILE "audio.som"
 
@@ -26,7 +27,7 @@ int main(int argc, char** argv) {
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
 
   int opt;
-  while ((opt = getopt(argc, argv, "hw:s:f:r:c:i:o")) != -1) {
+  while ((opt = getopt(argc, argv, "hw:s:f:r:c:i:o:")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -90,7 +91,7 @@ int main(int argc, char** argv) {
     totalnos += number_of_spectrum(count, window_size, shift);
   }
 
-  int som_dims = window_size / 2;
+  int som_dims = window_size / 2 + 1;
   // Magnitude spectrum
   double* mspec = malloc(som_dims * totalnos * sizeof(double));
   int np = 0;
@@ -121,9 +122,7 @@ int main(int argc, char** argv) {
 
     for (j = 0; j < nos; j++) {
       for (k = 0; k < som_dims; k++) {
-        double re =  get_real(get_spectra(tf, j), k);
-        double im =  get_imag(get_spectra(tf, j), k);
-        mspec[np * som_dims + k] = sqrt(re * re + im * im);
+        mspec[np * som_dims + k] = get_magnitude(get_spectra(tf, j), k);
       }
       np++;
     }

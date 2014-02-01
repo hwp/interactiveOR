@@ -7,6 +7,8 @@
 #include "utils.h"
 #include "spectral_sub.h"
 
+#include <string.h>
+
 int main(int argc, char** argv) {
   int showhelp = 0;
 
