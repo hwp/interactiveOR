@@ -25,7 +25,7 @@ TimeFreq* alloc_tf(int window_size, int nos) {
   }
 
   Spectra* data = malloc(nos * sizeof(Spectra));
-  if (data == NULL) { 
+  if (data == NULL) {
     free(tf);
     return NULL;
   }
@@ -43,7 +43,7 @@ TimeFreq* alloc_tf(int window_size, int nos) {
       return NULL;
     }
   }
-  
+
   tf->window_size = window_size;
   tf->nos = nos;
   tf->data = data;
@@ -70,6 +70,15 @@ inline double get_real(Spectra spec, int index) {
 
 inline double get_imag(Spectra spec, int index) {
   return spec[index * 2 + 1];
+}
+
+inline double get_magnitude(Spectra spec, int index) {
+  return sqrt(spec[index * 2] * spec[index * 2]
+      + spec[index * 2 + 1] * spec[index * 2 + 1]);
+}
+
+inline double get_phase(Spectra spec, int index) {
+  return atan2(spec[index * 2 + 1], spec[index * 2]);
 }
 
 void set_value(Spectra spec, int index, double real, double imag) {

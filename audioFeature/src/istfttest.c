@@ -11,8 +11,8 @@ int main(int argc, char** argv) {
   int showhelp = 0;
 
   unsigned int channels = 1;
-  int window_size;
-  int shift;
+  int window_size = 1024;
+  int shift = 256;
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
 
   int opt;
@@ -78,8 +78,7 @@ int main(int argc, char** argv) {
     exit(EXIT_FAILURE);
   }
 
-  count = write_file(output, count, channels,
-      SND_PCM_FORMAT_S16_LE, data);
+  count = write_file(output, count, channels, format, data);
   fclose(output);
 
   free_data(data, channels);

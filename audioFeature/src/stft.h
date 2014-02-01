@@ -38,6 +38,8 @@ Spectra get_spectra(TimeFreq* tfr, int index);
 
 double get_real(Spectra spec, int index);
 double get_imag(Spectra spec, int index);
+double get_magnitude(Spectra spec, int index);
+double get_phase(Spectra spec, int index);
 void set_value(Spectra spec, int index, double real, double imag);
 
 int number_of_spectrum(int length, int window_size, int shift);

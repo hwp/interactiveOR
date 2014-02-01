@@ -148,7 +148,7 @@ int main(int argc, char** argv) {
   fprintf(stderr, "Saving to file %s\n", outfile);
   FILE* file = fopen(outfile, "w");
   if (file == NULL) {
-    fprintf(stderr, "Cannot Open File %s : %s\n", argv[i],
+    fprintf(stderr, "Cannot Open File %s : %s\n", outfile,
         strerror(errno));
     exit(EXIT_FAILURE);
   }
