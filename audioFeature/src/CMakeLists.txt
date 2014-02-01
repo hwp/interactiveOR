@@ -22,6 +22,12 @@ if(UNIX)
   target_link_libraries(audiosom m)
 endif(UNIX)
 
+add_executable(audiomap audiomap.c som.c stft.c utils.c)
+target_link_libraries(audiomap ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+if(UNIX)
+  target_link_libraries(audiomap m)
+endif(UNIX)
+
 add_executable(specsubtest specsubtest.c spectral_sub.c stft.c utils.c)
 target_link_libraries(specsubtest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
 if(UNIX)

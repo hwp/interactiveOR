@@ -74,8 +74,8 @@ int main(int argc, char** argv) {
   if (outfile == NULL) {
     outfile = strdup(DEFAULT_OUTFILE);
   }
- 
-  // Load Data 
+
+  // Load Data
   int totalnos = 0;
   for (i = optind; i < argc; i++) {
     FILE* input = fopen(argv[i], "r");
@@ -121,8 +121,9 @@ int main(int argc, char** argv) {
     stft(data[0], count, window_size, shift, tf);
 
     for (j = 0; j < nos; j++) {
+      Spectra s = get_spectra(tf, j);
       for (k = 0; k < som_dims; k++) {
-        mspec[np * som_dims + k] = get_magnitude(get_spectra(tf, j), k);
+        mspec[np * som_dims + k] = get_magnitude(s, k);
       }
       np++;
     }
@@ -131,7 +132,7 @@ int main(int argc, char** argv) {
     free_data(data, channels);
     free_tf(tf);
   }
-  
+
   fprintf(stderr, "Total %d STFT Calculated\n", np);
 
   // Train
@@ -142,7 +143,7 @@ int main(int argc, char** argv) {
   som_train(net, mspec, totalnos, iters);
   free(mspec);
   fprintf(stderr, "Finished\n");
-  
+
   // Save SOM model
   fprintf(stderr, "Saving to file %s\n", outfile);
   FILE* file = fopen(outfile, "w");
@@ -153,6 +154,8 @@ int main(int argc, char** argv) {
   }
   som_save(net, file);
   fclose(file);
+
+  som_free(net);
 
   exit(EXIT_SUCCESS);
 }
