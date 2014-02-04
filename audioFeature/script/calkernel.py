@@ -4,8 +4,8 @@ import sys, getopt
 import math
 
 SELF_SIM = 1.0
-GAP_PANALTY = -2.0
-NW_POWER = 5.0
+GAP_PANALTY = -3.0
+NW_POWER = 1.0
 
 # Needleman-Wunsch Similarity
 # x, y: 2 sequences to be compared
@@ -26,7 +26,7 @@ def nw(x, y, s, d):
       insert = f[i][j - 1] + d
       f[i][j] = max(match, insert, delete)
   
-  return f[len(x)][len(y)]
+  return f[len(x)][len(y)] / (len(x) + len(y)) * 2
 
 # Distance between 2 SOM nodes
 # x, y: 2 ids of the nodes
@@ -37,17 +37,24 @@ def distance(x, y, rows, cols):
   dc = x % cols - y % cols
   return math.sqrt(dr * dr + dc * dc)
 
+# Kernel function
+def k(x, y, sim):
+  return math.exp(nw(x, y, sim, GAP_PANALTY) * NW_POWER)
+
 # Main function
 def main(argv):
   rows = 6
   cols = 6
+  quiet = False
 
-  opts, args = getopt.getopt(argv, "r:c:")
+  opts, args = getopt.getopt(argv, "r:c:q")
   for optn, optv in opts:
     if optn == '-r':
       rows = int(optv)
     elif optn == '-c':
       cols = int(optv)
+    elif optn == '-q':
+      quiet = True
 
   noi = rows * cols
   sim = [[0 for j in range(noi)] for i in range(noi)]
@@ -60,22 +67,47 @@ def main(argv):
 
   with open(args[0], 'r') as f:
     lines = [line.split() for line in list(f)]
-  
+
   nol = len(lines)
   seq = [map(int, lines[i][2:]) for i in range(nol)]
-  kernel = [[0 for j in range(nol)] for i in range(nol)]
+    
+  if len(args) == 1:
+    kernel = [[0 for j in range(nol)] for i in range(nol)]
   
-  for i in range(nol):
-    kernel[i][i] = nw(seq[i], seq[i], sim, GAP_PANALTY)
-    for j in range(i + 1, nol):
-      kernel[i][j] = nw(seq[i], seq[j], sim, GAP_PANALTY)
-      kernel[j][i] = kernel[i][j]
+    for i in range(nol):
+      kernel[i][i] = k(seq[i], seq[i], sim)
+      for j in range(i + 1, nol):
+        kernel[i][j] = k(seq[i], seq[j], sim)
+        kernel[j][i] = kernel[i][j]
 
-  for i in range(nol):
-    print lines[i][0], lines[i][1], '0:%d' % (i + 1),
-    for j in range(nol):
-      print '%d:%g' % (j + 1, kernel[i][j]),
-    print
+    if not quiet:
+      for i in range(nol):
+        print lines[i][0], lines[i][1], '0:%d' % (i + 1),
+        for j in range(nol):
+          print '%d:%g' % (j + 1, kernel[i][j]),
+        print
+
+    return kernel
+  else:
+    with open(args[1], 'r') as f:
+      lines = [line.split() for line in list(f)]
+
+    nolt = len(lines)
+    seqt = [map(int, lines[i][2:]) for i in range(nolt)]
+    kernel = [[0 for j in range(nol)] for i in range(nolt)]
+  
+    for i in range(nolt):
+      for j in range(nol):
+        kernel[i][j] = k(seqt[i], seq[j], sim)
+
+    if not quiet:
+      for i in range(nolt):
+        print lines[i][0], lines[i][1], '0:0',
+        for j in range(nol):
+          print '%d:%g' % (j + 1, kernel[i][j]),
+        print
+
+    return kernel
  
 if __name__ == "__main__":
   main(sys.argv[1:])
