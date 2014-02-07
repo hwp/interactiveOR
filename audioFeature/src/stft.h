@@ -41,6 +41,7 @@ double get_imag(Spectra spec, int index);
 double get_magnitude(Spectra spec, int index);
 double get_phase(Spectra spec, int index);
 void set_value(Spectra spec, int index, double real, double imag);
+void set_by_polar(Spectra spec, int index, double mag, double phase);
 
 int number_of_spectrum(int length, int window_size, int shift);
 

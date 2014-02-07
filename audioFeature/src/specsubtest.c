@@ -105,16 +105,6 @@ int main(int argc, char** argv) {
   TimeFreq* ntf = alloc_tf(window_size, nos);
   mag_spectral_sub(avg_spectrum, tf, ntf);
 
-  // Debug
-  int i, j;
-  for (i = 0; i < nos; i++) {
-    for (j = 0; j < window_size; j++) {
-      if (abs(tf->data[i][2 * j] - tf->data[i][2 * j]) + abs(tf->data[i][2 * j + 1] - tf->data[i][2 * j + 1]) > 0.0001) {
-        fprintf(stderr, "Inequality at %d, %d\n", i, j);
-      }
-    }
-  }
-
   // Inverse transform
   count = nos * shift + window_size;
   data[0] = malloc(count * sizeof(double));

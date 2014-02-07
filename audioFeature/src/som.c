@@ -33,7 +33,11 @@ double (*fdistance)(double*, double*, int) = f_euc_dis;
 
 
 double* get_weight(SOM* net, int row, int col) {
-  return net->weight + (row * net->cols + col) * net->dims;
+  return get_weight_by_id(net, row * net->cols + col);
+}
+
+double* get_weight_by_id(SOM* net, int id) {
+  return net->weight + id * net->dims;
 }
 
 SOM* som_alloc(int rows, int cols, int dims) {

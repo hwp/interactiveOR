@@ -18,6 +18,7 @@ typedef struct {
 } SOM;
 
 double* get_weight(SOM* net, int row, int col);
+double* get_weight_by_id(SOM* net, int id);
 
 /**
  * Allocate memory for SOM.

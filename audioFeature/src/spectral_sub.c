@@ -31,25 +31,20 @@ void mag_spectral_sub(double* avg_spectrum, TimeFreq* original,
   int i, j;
   for (i = 0; i < original->nos; i++) {
     for (j = 0; j < original->window_size / 2 + 1; j++) {
-      double re = get_real(get_spectra(original, i), j);
-      double im = get_imag(get_spectra(original, i), j);
-      double mago = get_magnitude(get_spectra(original, i), j);
-      double magn = mago - avg_spectrum[j];
-      double scale;
-      if (magn <= 0 || mago == 0) {
-        scale = 0;
+      double mag = get_magnitude(get_spectra(original, i), j)
+        - avg_spectrum[j];
+      if (mag < 0.0) {
+        mag = 0.0;
       }
-      else {
-        scale = magn / mago;
-      }
+      double phase = get_phase(get_spectra(original, i), j);
 
-      set_value(get_spectra(result, i), j, re * scale,
-          im * scale);
+      set_by_polar(get_spectra(result, i), j, mag, phase);
+
       // Assume time-domain signal is real,
       // thus freq-domain vector is symmetrical (conjugation)
       if (j > 0 && j < original->window_size / 2) {
-        set_value(get_spectra(result, i),
-            original->window_size - j, re * scale, -im * scale);
+        set_by_polar(get_spectra(result, i),
+            original->window_size - j, mag, -phase);
       }
     }
   }

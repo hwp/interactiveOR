@@ -24,7 +24,7 @@ int main(int argc, char** argv) {
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
 
   int opt;
-  while ((opt = getopt(argc, argv, "hw:s:f:r:c:i:o:")) != -1) {
+  while ((opt = getopt(argc, argv, "hw:s:f:o:")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -49,8 +49,7 @@ int main(int argc, char** argv) {
 
   if (showhelp || argc - optind < 1) {
     fprintf(stderr, "Usage: %s [-w window_size] [-s shift] "
-        "[-f format] [-r rows] [-c columns] [-i iterations] "
-        "[-o somfile] <inputFile>\n", argv[0]);
+        "[-f format] [-o somfile] <inputFile>\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
 
@@ -111,7 +110,13 @@ int main(int argc, char** argv) {
     for (j = 0; j < net->dims; j++) {
       mspec[j] = get_magnitude(s, j);
     }
-    printf("%d\n", som_map(net, mspec));
+    printf("%d", som_map(net, mspec));
+    if (i != nos - 1) {
+      printf(" ");
+    }
+    else {
+      printf("\n");
+    }
   }
 
   fprintf(stderr, "Mapping finished\n");

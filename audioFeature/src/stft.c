@@ -81,9 +81,15 @@ inline double get_phase(Spectra spec, int index) {
   return atan2(spec[index * 2 + 1], spec[index * 2]);
 }
 
-void set_value(Spectra spec, int index, double real, double imag) {
+inline void set_value(Spectra spec, int index, double real,
+    double imag) {
   spec[index * 2] = real;
   spec[index * 2 + 1] = imag;
+}
+
+inline void set_by_polar(Spectra spec, int index, double mag,
+    double phase) {
+  set_value(spec, index, mag * cos(phase), mag * sin(phase));
 }
 
 int number_of_spectrum(int length, int window_size, int shift) {

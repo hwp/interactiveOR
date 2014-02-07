@@ -19,6 +19,7 @@ void cal_avg_spectrum(TimeFreq* noise, double* avg_spectrum);
 
 /**
  * Magnitude spectrum substraction
+ * Memory for result should be allocated in advance.
  */
 void mag_spectral_sub(double* avg_spectrum, TimeFreq* original,
     TimeFreq* result);
