@@ -34,3 +34,9 @@ if(UNIX)
   target_link_libraries(specsubtest m)
 endif(UNIX)
 
+add_executable(sdenoisetest sdenoisetest.c som_denoise.c som.c stft.c utils.c)
+target_link_libraries(sdenoisetest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+if(UNIX)
+  target_link_libraries(sdenoisetest m)
+endif(UNIX)
+
