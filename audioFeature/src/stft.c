@@ -113,9 +113,14 @@ void stft(double* data, int length, int window_size, int shift,
   }
 }
 
+int istft_size(TimeFreq* tf) {
+  return (tf->nos - 1) * tf->shift + tf->window_size;
+}
+
 void istft(TimeFreq* tf, double* data) {
   int i, j;
-  for (i = 0; i < tf->nos * tf->shift + tf->window_size; i++) {
+  int isize = istft_size(tf);
+  for (i = 0; i < isize; i++) {
     data[i] = 0;
   }
 

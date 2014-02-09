@@ -106,7 +106,7 @@ int main(int argc, char** argv) {
   mag_spectral_sub(avg_spectrum, tf, ntf);
 
   // Inverse transform
-  count = nos * shift + window_size;
+  count = istft_size(tf);
   data[0] = malloc(count * sizeof(double));
   istft(ntf, data[0]);
 

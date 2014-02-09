@@ -54,14 +54,21 @@ int number_of_spectrum(int length, int window_size, int shift);
  */
 void stft(double* data, int length, int window_size,
     int shift, TimeFreq* result);
- 
+
+/**
+ * Calculate the length of inverse transformation
+ *   (time domain signal)
+ */
+int istft_size(TimeFreq* tf);
+
 /**
  * Inverse STFT.
  * Reconstruct the time-domain signal using ifft and
  * overlap and add.
  * Memory for the data (e.g. time-domain signal) should be allocated
  * before calling this function. Its length shall be 
- *   tf->nos * tf->shift + tf->window_size.
+ *   (tf->nos - 1) * tf->shift + tf->window_size.
+ *   see istft_size()
  */
 void istft(TimeFreq* tf, double* data);
 

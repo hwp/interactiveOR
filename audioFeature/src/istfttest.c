@@ -68,7 +68,7 @@ int main(int argc, char** argv) {
   free(data[0]);
 
   // Inverse transform
-  count = nos * shift + window_size;
+  count = istft_size(tf);
   data[0] = malloc(count * sizeof(double));
   istft(tf, data[0]);
   
