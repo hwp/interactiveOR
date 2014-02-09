@@ -7,6 +7,7 @@
 #include "spectral_sub.h"
 
 #include <math.h>
+#include <assert.h>
 
 void cal_avg_spectrum(TimeFreq* noise, double* avg_spectrum) {
   int i, j;
@@ -24,9 +25,10 @@ void cal_avg_spectrum(TimeFreq* noise, double* avg_spectrum) {
 
 void mag_spectral_sub(double* avg_spectrum, TimeFreq* original,
     TimeFreq* result) {
-  result->window_size = original->window_size;
+  assert(result->window_size == original->window_size);
+  assert(result->nos == original->nos);
+
   result->shift = original->shift;
-  result->nos = original->nos;
 
   int i, j;
   for (i = 0; i < original->nos; i++) {

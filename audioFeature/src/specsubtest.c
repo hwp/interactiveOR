@@ -122,6 +122,7 @@ int main(int argc, char** argv) {
 
   free_data(data, channels);
   free_tf(tf);
+  free_tf(ntf);
   free(avg_spectrum);
 
   exit(EXIT_SUCCESS);

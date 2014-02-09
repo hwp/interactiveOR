@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
         som_rows = atoi(optarg);
         break;
       case 'c':
-        som_rows = atoi(optarg);
+        som_cols = atoi(optarg);
         break;
       case 'i':
         iters = atoi(optarg);
