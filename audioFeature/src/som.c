@@ -67,14 +67,16 @@ void som_free(SOM* net) {
 
 double learn_rate(int noi, int total) {
   double c = 0.01 * total;
+  c = c < 1.0 ? 1.0 : c;
   return ALPHA_0 * c / (c + noi);
 }
 
 /**
+ * Difference of Gaussian
  * n(d, i, t) 
  *   = (k^2 * exp(-d^2/s^2) + exp(-d^2/(k^2*s^2))) / (k^2 - 1);
  */
-double neighborhood(int dx, int dy, int noi, int total) {
+double n_dog(int dx, int dy, int noi, int total) {
   double s = SIGMA_0 - (SIGMA_0 - SIGMA_INF) * noi / total;
   double s2 = s * s;
   double k2 = K * K;
@@ -82,6 +84,18 @@ double neighborhood(int dx, int dy, int noi, int total) {
   return k2 / (k2 - 1) * exp(-d2 / s2) -
     1 / (k2 - 1) * exp(-d2 / (k2 * s2));
 }
+
+/**
+ * Gaussian
+ */
+double n_gaussian(int dx, int dy, int noi, int total) {
+  double s = SIGMA_0 - (SIGMA_0 - SIGMA_INF) * noi / total;
+  double s2 = s * s;
+  double d2 = dx * dx + dy * dy;
+  return exp(-d2 / s2);
+}
+
+double (*neighborhood)(int, int, int, int) = n_gaussian;
 
 void update_weights(SOM* net, int bmu, double* data, int noi,
     int total) {
