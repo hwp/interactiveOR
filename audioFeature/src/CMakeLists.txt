@@ -40,3 +40,9 @@ if(UNIX)
   target_link_libraries(sdenoisetest m)
 endif(UNIX)
 
+add_executable(phasetest phasetest.c filter.c stft.c utils.c)
+target_link_libraries(phasetest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+if(UNIX)
+  target_link_libraries(phasetest m)
+endif(UNIX)
+

@@ -73,3 +73,4 @@ int istft_size(TimeFreq* tf);
 void istft(TimeFreq* tf, double* data);
 
 #endif  // STFT_H_
+
