@@ -12,7 +12,8 @@
 #include <gsl/gsl_rng.h>
 
 #define ALPHA_0 1.0
-#define SIGMA_0 5.0
+#define SIGMA_0 3.0
+#define SIGMA_INF 0.5
 #define K       10.0
 
 // Euclidean Distance
@@ -30,7 +31,6 @@ double f_euc_dis(double* f1, double* f2, int size) {
 
 // Feature Distance
 double (*fdistance)(double*, double*, int) = f_euc_dis;
-
 
 double* get_weight(SOM* net, int row, int col) {
   return get_weight_by_id(net, row * net->cols + col);
@@ -70,8 +70,12 @@ double learn_rate(int noi, int total) {
   return ALPHA_0 * c / (c + noi);
 }
 
+/**
+ * n(d, i, t) 
+ *   = (k^2 * exp(-d^2/s^2) + exp(-d^2/(k^2*s^2))) / (k^2 - 1);
+ */
 double neighborhood(int dx, int dy, int noi, int total) {
-  double s = SIGMA_0 - (SIGMA_0 - 1.0) * noi / total;
+  double s = SIGMA_0 - (SIGMA_0 - SIGMA_INF) * noi / total;
   double s2 = s * s;
   double k2 = K * K;
   double d2 = dx * dx + dy * dy;
@@ -135,6 +139,10 @@ void som_train(SOM* net, double* data, int length, int iters) {
 
   // Train 
   for (i = 0; i < iters; i++) {
+    fprintf(stderr, "Iteration #%d (learn_rate = %g,"
+        " neighbor@1,2,3 = [%g, %g, %g])\n",
+        i, learn_rate(i, iters), neighborhood(0, 1, i, iters),
+        neighborhood(0, 2, i, iters), neighborhood(0, 3, i, iters));
     for (j = 0; j < length; j++) {
       double* sample = data + j * net->dims;
       // Best matching unit
