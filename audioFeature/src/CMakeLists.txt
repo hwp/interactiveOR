@@ -46,3 +46,10 @@ if(UNIX)
   target_link_libraries(phasetest m)
 endif(UNIX)
 
+add_executable(addnoise addnoise.c utils.c)
+target_link_libraries(addnoise  ${ALSA_LIBRARIES})
+
+add_executable(spectrogram spectrogram.c stft.c utils.c)
+target_link_libraries(spectrogram ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+
+
