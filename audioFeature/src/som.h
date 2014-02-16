@@ -48,6 +48,11 @@ void som_train(SOM* net, double* data, int length, int iters);
 int som_map(SOM* net, double* data);
 
 /**
+ * Another version of som_map, also return the distance
+ */
+int som_map_dis(SOM* net, double* data, double* distance);
+
+/**
  * Save SOM to file.
  * 
  * @return 0 on success

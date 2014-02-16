@@ -160,14 +160,22 @@ void som_train(SOM* net, double* data, int length, int iters) {
     for (j = 0; j < length; j++) {
       double* sample = data + j * net->dims;
       // Best matching unit
-      int bmu = som_map(net, sample);
+      double dis;
+      int bmu = som_map_dis(net, sample, &dis);
+      printf("%g ", dis);
       // Update weights
       update_weights(net, bmu, sample, i, iters);
     }
+    printf("\n");
   }
 }
 
 int som_map(SOM* net, double* data) {
+  double dis;
+  return som_map_dis(net, data, &dis);
+}
+
+int som_map_dis(SOM* net, double* data, double* distance) {
   int i, j;
   double mind = INFINITY;
   int r = 0;
@@ -181,6 +189,7 @@ int som_map(SOM* net, double* data) {
     }
   }
 
+  *distance = mind;
   return r;
 }
 
