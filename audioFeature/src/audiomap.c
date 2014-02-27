@@ -110,13 +110,9 @@ int main(int argc, char** argv) {
     for (j = 0; j < net->dims; j++) {
       mspec[j] = get_magnitude(s, j);
     }
-    printf("%d", som_map(net, mspec));
-    if (i != nos - 1) {
-      printf(" ");
-    }
-    else {
-      printf("\n");
-    }
+    double dis;
+    int id = som_map_dis(net, mspec, &dis);
+    printf("%d %g\n", id, dis);
   }
 
   fprintf(stderr, "Mapping finished\n");
