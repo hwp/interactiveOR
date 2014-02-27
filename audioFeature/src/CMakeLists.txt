@@ -46,6 +46,12 @@ if(UNIX)
   target_link_libraries(phasetest m)
 endif(UNIX)
 
+add_executable(freqtest freqtest.c filter.c stft.c utils.c)
+target_link_libraries(freqtest ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
+if(UNIX)
+  target_link_libraries(freqtest m)
+endif(UNIX)
+
 add_executable(addnoise addnoise.c utils.c)
 target_link_libraries(addnoise  ${ALSA_LIBRARIES})
 
