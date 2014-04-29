@@ -36,7 +36,7 @@ int main(int argc, char** argv) {
   }
 
   if (showhelp || argc - optind < 2) {
-    fprintf(stderr, "Usage: %s [-w window_size] [-s shift] "
+    fprintf(stderr, "Usage: %s [-s scale] "
         "[-f format] [-n noiseFile] <inputFile> <outputFile>\n"
         , argv[0]);
     exit(EXIT_SUCCESS);
