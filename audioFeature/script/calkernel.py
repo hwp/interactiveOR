@@ -46,8 +46,9 @@ def main(argv):
   rows = 6
   cols = 6
   quiet = False
+  showhelp = False
 
-  opts, args = getopt.getopt(argv, "r:c:q")
+  opts, args = getopt.getopt(argv[1:], "r:c:q")
   for optn, optv in opts:
     if optn == '-r':
       rows = int(optv)
@@ -55,6 +56,12 @@ def main(argv):
       cols = int(optv)
     elif optn == '-q':
       quiet = True
+    elif optn == '-h':
+      showhelp = True
+
+  if (len(args) == 0 or showhelp):
+    print argv[0], '-r <rows> -c <cols> traindata [testdata]'
+    return
 
   noi = rows * cols
   sim = [[0 for j in range(noi)] for i in range(noi)]
@@ -110,5 +117,5 @@ def main(argv):
     return kernel
  
 if __name__ == "__main__":
-  main(sys.argv[1:])
+  main(sys.argv)
 
