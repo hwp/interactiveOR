@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
 
   fprintf(stderr, "SOM Loaded (size: %d * %d, dimension: %d)\n",
       net->rows, net->cols, net->dims);
+  assert(window_size / 2 + 1 == net->dims);
 
   // Load Data
   fprintf(stderr, "Loading Audio File %s (%d channel(s), %s)\n",
@@ -112,8 +113,9 @@ int main(int argc, char** argv) {
     }
     double dis;
     int id = som_map_dis(net, mspec, &dis);
-    printf("%d %g\n", id, dis);
+    printf("%d ", id);
   }
+  printf("\n");
 
   fprintf(stderr, "Mapping finished\n");
 

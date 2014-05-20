@@ -162,11 +162,9 @@ void som_train(SOM* net, double* data, int length, int iters) {
       // Best matching unit
       double dis;
       int bmu = som_map_dis(net, sample, &dis);
-      printf("%g ", dis);
       // Update weights
       update_weights(net, bmu, sample, i, iters);
     }
-    printf("\n");
   }
 }
 
