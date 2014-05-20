@@ -58,4 +58,6 @@ target_link_libraries(addnoise  ${ALSA_LIBRARIES})
 add_executable(spectrogram spectrogram.c stft.c utils.c)
 target_link_libraries(spectrogram ${GSL_LIBRARIES} ${ALSA_LIBRARIES})
 
+add_executable(plotwave plotwave.c utils.c)
+target_link_libraries(plotwave ${ALSA_LIBRARIES})
 
