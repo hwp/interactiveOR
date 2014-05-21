@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
   snd_pcm_format_t format = SND_PCM_FORMAT_UNKNOWN;
 
   int opt;
-  while ((opt = getopt(argc, argv, "hw:s:r:f:")) != -1) {
+  while ((opt = getopt(argc, argv, "hr:f:")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -62,7 +62,9 @@ int main(int argc, char** argv) {
       "unset key\n"
       "set xlabel 'Time (s)'\n"
       "set ylabel 'Amplitude'\n");
-  printf("plot '-' with lines\n");
+  printf("set yrange [-1:1]\n");
+  printf("set xrange [0:%g]\n", (double) count / rate);
+  printf("plot '-' with lines lc rgb 'black'\n");
   unsigned long int i;
   for (i = 0; i < count; i++) {
     printf("%g %g\n", (double) i / (double) rate, data[0][i]);

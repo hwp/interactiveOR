@@ -74,10 +74,13 @@ int main(int argc, char** argv) {
       "set border 3 front ls 11\n"
       "set tics nomirror out scale 0.75\n"
       "unset key\n"
+      "unset colorbox\n"
       "set palette defined (0 '#000090', 1 '#000fff', 2 '#0090ff', 3 '#0fffee', 4 '#90ff70', 5 '#ffee00', 6 '#ff7000', 7 '#ee0000', 8 '#7f0000')\n"
       "set xlabel 'Time (s)'\n"
       "set ylabel 'Frequency (Hz)'\n");
-  printf("plot '-' matrix using ($2 * %g) : ($1 * %g) : (log($3))"
+  printf("set yrange [0:%g]\n", (double) rate / 2.0);
+  printf("set xrange [0:%g]\n", (double) count / rate);
+  printf("plot '-' matrix using (($2 + 0.5) * %g) : (($1 + 0.5) * %g) : (log($3))"
     " with image\n", (double) shift / rate, 
     (double) rate / window_size);
   int i, j;
