@@ -18,15 +18,15 @@ int main(int argc, char** argv) {
 
   FILE* in = fopen(argv[1], "r");
   assert(in);
-  hmmgmm_t* model = hmmgmm_fscan(in);;
+  hmmgmm_t* model = hmmgmm_fread(in);;
   fclose(in);
-
+  
   printf("\n================\nModel 1\n");
   hmmgmm_fprint(stdout, model);
 
   size_t i;
   size_t size = 100;
-  size_t nos = 1000;
+  size_t nos = 10;
   seq_t** data = calloc(nos, sizeof(seq_t*));
   for (i = 0; i < nos; i++) {
     data[i] = seq_gen(rng, model, size);
