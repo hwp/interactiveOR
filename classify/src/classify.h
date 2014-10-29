@@ -7,6 +7,8 @@
 #ifndef CLASSIFY_H_
 #define CLASSIFY_H_
 
+#include <stdio.h>
+
 /**
  * An instance of data.
  */
@@ -97,6 +99,19 @@ clfy_confmat* clfy_confmat_alloc(unsigned int size);
  * Free memory for a confusion matrix.
  */
 void clfy_confmat_free(clfy_confmat* confmat);
+
+/**
+ * Print confusion matrix.
+ */ 
+void clfy_confmat_fprintf(FILE* stream,
+    clfy_confmat* confmat, clfy_metadata* meta);
+
+/**
+ * Print confusion matrix with customized width.
+ */
+void clfy_confmat_fprintf_wide(FILE* stream,
+    clfy_confmat* confmat, clfy_metadata* meta,
+    unsigned int width);
 
 /**
  * Evaluate the classifier using the train and data.

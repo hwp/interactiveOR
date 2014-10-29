@@ -12,6 +12,8 @@
 
 #define DATASET_INIT_SIZE 128
 
+#define DEFAULT_WIDTH 8
+
 #define CONFMAT_GET(mat, i, j) \
   ((mat)->counter[(mat)->size * (i) + (j)])
 
@@ -57,7 +59,7 @@ void clfy_dataset_add(clfy_dataset* data, clfy_instance ins) {
         data->capacity * sizeof(clfy_instance));
     assert(data->instances);
   }
-  
+
   data->instances[data->size] = ins;
   data->size++;
 }
@@ -85,6 +87,39 @@ void clfy_confmat_free(clfy_confmat* confmat) {
   if (confmat) {
     free(confmat->counter);
     free(confmat);
+  }
+}
+
+void clfy_confmat_fprintf(FILE* stream,
+    clfy_confmat* confmat, clfy_metadata* meta) {
+  clfy_confmat_fprintf_wide(stream, confmat, meta,
+      DEFAULT_WIDTH);
+}
+
+void clfy_confmat_fprintf_wide(FILE* stream,
+    clfy_confmat* confmat, clfy_metadata* meta,
+    unsigned int width) {
+  assert(meta->nclass == confmat->size);
+
+  unsigned int i, j;
+
+  char name_format[10];
+  snprintf(name_format, 10, "%%%us", width);
+  char number_format[10];
+  snprintf(number_format, 10, "%%%uu", width);
+
+  fprintf(stream, (const char*) name_format, "");
+  for (i = 0; i < meta->nclass; i++) {
+    fprintf(stream, (const char*) name_format, meta->names[i]);
+  }
+  fprintf(stream, "\n");
+  for (i = 0; i < meta->nclass; i++) {
+    fprintf(stream, (const char*) name_format, meta->names[i]);
+    for (j = 0; j < meta->nclass; j++) {
+      fprintf(stream, (const char*) number_format,
+          CONFMAT_GET(confmat, i, j));
+    }
+    fprintf(stream, "\n");
   }
 }
 
@@ -128,7 +163,7 @@ void divide(clfy_dataset* data, unsigned int* group,
   free(ctr);
 }
 
-double clfy_cross_validate(clfy_dataset* data, 
+double clfy_cross_validate(clfy_dataset* data,
     clfy_train_func method, unsigned int nfold,
     clfy_confmat* confmat) {
   unsigned int* group = malloc(data->size * sizeof(unsigned int));

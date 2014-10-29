@@ -37,7 +37,7 @@ clfy_classifier* train(clfy_dataset* train_data) {
   cl->classify = (classify_func) classify;
   cl->free_self = free_s;
   cl->fields = th;
-  
+
   *th = 0.0;
   unsigned int i;
   for (i = 0; i < train_data->size; i++) {
@@ -67,8 +67,8 @@ int main(int argc, char** argv) {
     point* p = malloc(sizeof(point));
     p->x = gsl_rng_uniform(rng);
     p->y = gsl_rng_uniform(rng);
-    
-    ins.feature = p;   
+
+    ins.feature = p;
     ins.label = 0;
     clfy_dataset_add(data, ins);
   }
@@ -77,16 +77,19 @@ int main(int argc, char** argv) {
     point* p = malloc(sizeof(point));
     p->x = gsl_rng_uniform(rng) + 0.5;
     p->y = gsl_rng_uniform(rng) + 0.5;
-    
-    ins.feature = p;   
+
+    ins.feature = p;
     ins.label = 1;
     clfy_dataset_add(data, ins);
   }
 
+  clfy_confmat* confmat = clfy_confmat_alloc(meta.nclass);
   double precision = clfy_cross_validate(data, train,
-      3, NULL);
+      3, confmat);
   printf("Precision = %g\n", precision);
+  clfy_confmat_fprintf(stdout, confmat, &meta);
 
+  clfy_confmat_free(confmat);
   clfy_dataset_freeall(data, free);
   gsl_rng_free(rng);
   return 0;
