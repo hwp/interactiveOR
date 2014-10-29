@@ -8,6 +8,8 @@
 
 #include <stdio.h>
 
+#include <gsl/gsl_rng.h>
+
 typedef struct {
   double x;
   double y;
@@ -22,42 +24,71 @@ unsigned int classify(double* th, point* p) {
   }
 }
 
-clfy_classifier cl;
-double th;
+void free_s(void* ptr) {
+  clfy_classifier* cl = ptr;
+  free(cl->fields);
+  free(cl);
+}
 
 clfy_classifier* train(clfy_dataset* train_data) {
-  cl.classify = (classify_func) classify;
-  cl.free_fields = NULL;
-  th = 2.0;
-  cl.fields = &th;
+  clfy_classifier* cl = malloc(sizeof(clfy_classifier));
+  double* th = malloc(sizeof(double));
 
-  return &cl;
+  cl->classify = (classify_func) classify;
+  cl->free_self = free_s;
+  cl->fields = th;
+  
+  *th = 0.0;
+  unsigned int i;
+  for (i = 0; i < train_data->size; i++) {
+    point* p = (point*) train_data->instances[i].feature;
+    *th += p->x + p->y;
+  }
+  *th /= (double) train_data->size;
+
+  return cl;
 }
 
 int main(int argc, char** argv) {
-  point p1 = {0.0, 1.0};
-  point p2 = {0.1, 1.0};
-  point p3 = {0.0, 2.0};
-  point p4 = {-1.0, 0.0};
+  gsl_rng_env_setup();
+  const gsl_rng_type* type = gsl_rng_default;
+  gsl_rng* rng = gsl_rng_alloc(type);
+
+  unsigned int i;
   clfy_instance ins;
+  clfy_dataset* data = clfy_dataset_alloc();
+  clfy_metadata meta;
+  meta.nclass = 2;
+  const char* names[2] = {"c1", "c2"};
+  meta.names = names;
+  data->metadata = &meta;
 
-  clfy_dataset* train_data = clfy_dataset_alloc();
-  clfy_dataset* test_data = clfy_dataset_alloc();
-  ins = (clfy_instance){&p1, 0};
-  clfy_dataset_add(test_data, ins);
-  ins = (clfy_instance){&p2, 0};
-  clfy_dataset_add(test_data, ins);
-  ins = (clfy_instance){&p3, 1};
-  clfy_dataset_add(test_data, ins);
-  ins = (clfy_instance){&p4, 1};
-  clfy_dataset_add(test_data, ins);
+  for (i = 0; i < 100; i++) {
+    point* p = malloc(sizeof(point));
+    p->x = gsl_rng_uniform(rng);
+    p->y = gsl_rng_uniform(rng);
+    
+    ins.feature = p;   
+    ins.label = 0;
+    clfy_dataset_add(data, ins);
+  }
 
-  double precision = clfy_performance(train_data,
-      test_data, train, NULL);
+  for (i = 0; i < 200; i++) {
+    point* p = malloc(sizeof(point));
+    p->x = gsl_rng_uniform(rng) + 0.5;
+    p->y = gsl_rng_uniform(rng) + 0.5;
+    
+    ins.feature = p;   
+    ins.label = 1;
+    clfy_dataset_add(data, ins);
+  }
+
+  double precision = clfy_cross_validate(data, train,
+      3, NULL);
   printf("Precision = %g\n", precision);
 
-  clfy_dataset_free(train_data);
-  clfy_dataset_free(test_data);
+  clfy_dataset_freeall(data, free);
+  gsl_rng_free(rng);
   return 0;
 }
 

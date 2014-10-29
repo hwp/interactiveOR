@@ -53,13 +53,9 @@ void clfy_dataset_freeall(clfy_dataset* data,
 void clfy_dataset_add(clfy_dataset* data, clfy_instance ins) {
   if (data->size == data->capacity) {
     data->capacity *= 2;
-    clfy_instance* new_ins = malloc(data->capacity 
-        * sizeof(clfy_instance));
-    assert(new_ins);
-    memcpy(new_ins, data->instances,
-        data->size * sizeof(clfy_instance));
-    free(data->instances);
-    data->instances = new_ins;
+    data->instances = realloc(data->instances,
+        data->capacity * sizeof(clfy_instance));
+    assert(data->instances);
   }
   
   data->instances[data->size] = ins;
@@ -110,27 +106,37 @@ double clfy_performance(clfy_dataset* train_data,
     }
   }
 
-  if (cl->free_fields) {
-    cl->free_fields(cl->fields);
+  if (cl->free_self) {
+    cl->free_self(cl);
   }
 
   return (double) correct / (double) test_data->size;
 }
 
 void divide(clfy_dataset* data, unsigned int* group,
-    unsigned int fold) {
-  // TODO
+    unsigned int nfold) {
+  unsigned int* ctr = calloc(data->metadata->nclass,
+      sizeof(unsigned int));
+
+  unsigned int i;
+  for (i = 0; i < data->size; i++) {
+    unsigned int c = data->instances[i].label;
+    group[i] = ctr[c];
+    ctr[c] = (ctr[c] + 1) % nfold;
+  }
+
+  free(ctr);
 }
 
 double clfy_cross_validate(clfy_dataset* data, 
-    clfy_train_func method, unsigned int num_fold,
+    clfy_train_func method, unsigned int nfold,
     clfy_confmat* confmat) {
   unsigned int* group = malloc(data->size * sizeof(unsigned int));
-  divide(data, group, num_fold);
+  divide(data, group, nfold);
 
   double sum = 0.0;
   unsigned int i, j;
-  for (i = 0; i < num_fold; i++) {
+  for (i = 0; i < nfold; i++) {
     clfy_dataset* train = clfy_dataset_alloc();
     train->metadata = data->metadata;
     clfy_dataset* test = clfy_dataset_alloc();

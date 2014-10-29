@@ -19,7 +19,7 @@ typedef struct {
  * Discription of data.
  */
 typedef struct {
-  unsigned int num_class;
+  unsigned int nclass;
   const char** names;
 } clfy_metadata;
 
@@ -48,7 +48,7 @@ typedef unsigned int (*classify_func)(void* fields, void* feature);
  */
 typedef struct {
   classify_func classify;
-  free_func free_fields;
+  free_func free_self;
   void* fields;
 } clfy_classifier;
 
@@ -118,7 +118,7 @@ double clfy_performance(clfy_dataset* train_data,
  * @return the precision.
  */
 double clfy_cross_validate(clfy_dataset* data, 
-    clfy_train_func method, unsigned int num_fold,
+    clfy_train_func method, unsigned int nfold,
     clfy_confmat* confmat);
 
 #endif  // CLASSIFY_H_
