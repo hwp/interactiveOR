@@ -57,11 +57,10 @@ int main(int argc, char** argv) {
   unsigned int i;
   clfy_instance ins;
   clfy_dataset* data = clfy_dataset_alloc();
-  clfy_metadata meta;
-  meta.nclass = 2;
-  const char* names[2] = {"c1", "c2"};
-  meta.names = names;
-  data->metadata = &meta;
+  clfy_metadata* meta = clfy_metadata_alloc();
+  data->metadata = meta;
+  clfy_metadata_lookup(meta, "c1");
+  clfy_metadata_lookup(meta, "c2");
 
   for (i = 0; i < 100; i++) {
     point* p = malloc(sizeof(point));
@@ -83,14 +82,15 @@ int main(int argc, char** argv) {
     clfy_dataset_add(data, ins);
   }
 
-  clfy_confmat* confmat = clfy_confmat_alloc(meta.nclass);
+  clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
   double precision = clfy_cross_validate(data, train,
       3, confmat);
   printf("Precision = %g\n", precision);
-  clfy_confmat_fprintf(stdout, confmat, &meta);
+  clfy_confmat_fprintf(stdout, confmat, meta);
 
   clfy_confmat_free(confmat);
   clfy_dataset_freeall(data, free);
+  clfy_metadata_free(meta);
   gsl_rng_free(rng);
   return 0;
 }

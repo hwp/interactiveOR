@@ -10,20 +10,75 @@
 #include <string.h>
 #include <assert.h>
 
-#define DATASET_INIT_SIZE 128
+#define METADATA_INIT_CAPACITY 20
+#define DATASET_INIT_CAPACITY 128
 
 #define DEFAULT_WIDTH 8
 
 #define CONFMAT_GET(mat, i, j) \
   ((mat)->counter[(mat)->size * (i) + (j)])
 
+clfy_metadata* clfy_metadata_alloc(void) {
+  clfy_metadata* ret = malloc(sizeof(clfy_metadata));
+  const char** names = malloc(METADATA_INIT_CAPACITY
+      * sizeof(const char*));
+
+  if (ret && names) {
+    ret->nclass = 0;
+    ret->capacity = METADATA_INIT_CAPACITY;
+    ret->names = names;
+  }
+  else {
+    free(ret);
+    free(names);
+    ret = NULL;
+  }
+
+  return ret;
+}
+
+void clfy_metadata_free(clfy_metadata* meta) {
+  if (meta) {
+    unsigned int i;
+    for (i = 0; i < meta->nclass; i++) {
+      free((char*) meta->names[i]);
+    }
+    free(meta->names);
+    free(meta);
+  }
+}
+
+unsigned int clfy_metadata_lookup(clfy_metadata* meta,
+    const char* name) {
+  unsigned int i;
+  for (i = 0; i < meta->nclass; i++) {
+    if (strcmp(meta->names[i], name) == 0) {
+      return i;
+    }
+  }
+
+  if (meta->nclass == meta->capacity) {
+    meta->capacity *= 2;
+    meta->names = realloc(meta->names,
+        meta->capacity * sizeof(const char*));    
+    assert(meta->names);
+  }
+
+  meta->names[meta->nclass] = strdup(name);
+  assert(meta->names[meta->nclass]);
+  meta->nclass++;
+
+  return meta->nclass - 1;
+}
+
 clfy_dataset* clfy_dataset_alloc(void) {
   clfy_dataset* ret = malloc(sizeof(clfy_dataset));
-  clfy_instance* instances = malloc(DATASET_INIT_SIZE * sizeof(clfy_instance));
+  clfy_instance* instances = malloc(DATASET_INIT_CAPACITY
+      * sizeof(clfy_instance));
 
   if (ret && instances) {
     ret->size = 0;
-    ret->capacity = DATASET_INIT_SIZE;
+    ret->capacity = DATASET_INIT_CAPACITY;
     ret->metadata = NULL;
     ret->instances = instances;
   }
@@ -108,15 +163,15 @@ void clfy_confmat_fprintf_wide(FILE* stream,
   char number_format[10];
   snprintf(number_format, 10, "%%%uu", width);
 
-  fprintf(stream, (const char*) name_format, "");
+  fprintf(stream, name_format, "gs\\pr");
   for (i = 0; i < meta->nclass; i++) {
-    fprintf(stream, (const char*) name_format, meta->names[i]);
+    fprintf(stream, name_format, meta->names[i]);
   }
   fprintf(stream, "\n");
   for (i = 0; i < meta->nclass; i++) {
-    fprintf(stream, (const char*) name_format, meta->names[i]);
+    fprintf(stream, name_format, meta->names[i]);
     for (j = 0; j < meta->nclass; j++) {
-      fprintf(stream, (const char*) number_format,
+      fprintf(stream, number_format,
           CONFMAT_GET(confmat, i, j));
     }
     fprintf(stream, "\n");

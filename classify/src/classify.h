@@ -22,6 +22,7 @@ typedef struct {
  */
 typedef struct {
   unsigned int nclass;
+  unsigned int capacity;
   const char** names;
 } clfy_metadata;
 
@@ -67,6 +68,26 @@ typedef struct {
   unsigned int size;
   unsigned int* counter;
 } clfy_confmat;
+
+/**
+ * Allocate metadata with empty name list.
+ */
+clfy_metadata* clfy_metadata_alloc(void);
+
+/**
+ * Free metadata.
+ */
+void clfy_metadata_free(clfy_metadata* meta);
+
+/**
+ * Lookup the associated index of the name.
+ * If the name does not exist in the name list, add it
+ * to the end and return the new index.
+ *
+ * @note the name will be duplicated and saved in the list.
+ */
+unsigned int clfy_metadata_lookup(clfy_metadata* meta,
+    const char* name);
 
 /**
  * Allocate an empty data set.
