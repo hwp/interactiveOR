@@ -56,7 +56,7 @@ typedef struct {
 } clfy_classifier;
 
 /**
- * Train function
+ * Train function.
  */
 typedef clfy_classifier* (*clfy_train_func)
   (clfy_dataset* train_data);
@@ -68,6 +68,11 @@ typedef struct {
   unsigned int size;
   unsigned int* counter;
 } clfy_confmat;
+
+/**
+ * Loader function.
+ */
+typedef void* (*loader_func)(FILE* stream, void* param);
 
 /**
  * Allocate metadata with empty name list.
@@ -156,6 +161,15 @@ double clfy_performance(clfy_dataset* train_data,
 double clfy_cross_validate(clfy_dataset* data, 
     clfy_train_func method, unsigned int nfold,
     clfy_confmat* confmat);
+
+/**
+ * Load data from files.
+ * This function will search all files with extension 
+ * ".fvec" in the given path and load the with the given
+ * function.
+ */
+unsigned int clfy_load_dataset(clfy_dataset* data,
+    const char* path, loader_func loader, void* load_param);
 
 #endif  // CLASSIFY_H_
 

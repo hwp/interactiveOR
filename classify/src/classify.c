@@ -7,7 +7,10 @@
 #include "classify.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
+#include <dirent.h>
+#include <errno.h>
 #include <assert.h>
 
 #define METADATA_INIT_CAPACITY 20
@@ -250,5 +253,63 @@ double clfy_cross_validate(clfy_dataset* data,
   free(group);
 
   return sum / (double) data->size;
+}
+
+unsigned int clfy_load_dataset(clfy_dataset* data,
+    const char* path, loader_func loader, void* load_param) {
+  unsigned int n = 0;
+
+  DIR* dir = opendir(path);
+  if (dir) {
+    struct dirent* ent;
+    while ((ent = readdir(dir)) != NULL) {
+      char* name = ent->d_name;
+      char* dot = strrchr(name, '.');
+      if (dot && strcmp(dot, ".fvec") == 0) {
+        char filepath[512];
+        strcpy(filepath, path);
+        strcat(filepath, "/");
+        strcat(filepath, name);
+        FILE* in = fopen(filepath, "r");
+        if (in) {
+          clfy_instance ins;
+          ins.feature = loader(in, load_param);
+          fclose(in);
+
+          if (ins.feature) {
+            char class[256];
+            strcpy(class, name);
+            char* dash = strchr(class, '_');
+            if (dash) {
+              *dash = '\0';
+            }
+            else {
+              dash = strchr(class, '.');
+              *dash = '\0';
+            }
+            ins.label = clfy_metadata_lookup(data->metadata, class);
+
+            clfy_dataset_add(data, ins);
+            n++;
+          }
+          else {
+            fprintf(stderr, "Error: Failed to load data "
+                "from file: %s\n", filepath);
+          }
+        }
+        else {
+          fprintf(stderr, "Error: Failed to open file: %s\n"
+              "Error: %s\n", filepath, strerror(errno));
+        }
+      }
+    }
+    closedir(dir);
+  }
+  else {
+    fprintf(stderr, "Error: Cannot open directory: %s\n"
+        "%s\n", path, strerror(errno));
+  }
+
+  return n;
 }
 

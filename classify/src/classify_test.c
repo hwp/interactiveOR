@@ -7,6 +7,7 @@
 #include "classify.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include <gsl/gsl_rng.h>
 
@@ -49,37 +50,32 @@ clfy_classifier* train(clfy_dataset* train_data) {
   return cl;
 }
 
+void* loader(FILE* stream, gsl_rng* rng) {
+  double dx, dy;
+  int r = fscanf(stream, "%lg %lg", &dx, &dy);
+  if (r == 2) { 
+    point* p = malloc(sizeof(point));
+    p->x = gsl_rng_uniform(rng) + dx;
+    p->y = gsl_rng_uniform(rng) + dy;
+    return p;
+  }
+  else {
+    return NULL;
+  }
+}
+
 int main(int argc, char** argv) {
   gsl_rng_env_setup();
   const gsl_rng_type* type = gsl_rng_default;
   gsl_rng* rng = gsl_rng_alloc(type);
 
   unsigned int i;
-  clfy_instance ins;
   clfy_dataset* data = clfy_dataset_alloc();
   clfy_metadata* meta = clfy_metadata_alloc();
   data->metadata = meta;
-  clfy_metadata_lookup(meta, "c1");
-  clfy_metadata_lookup(meta, "c2");
 
   for (i = 0; i < 100; i++) {
-    point* p = malloc(sizeof(point));
-    p->x = gsl_rng_uniform(rng);
-    p->y = gsl_rng_uniform(rng);
-
-    ins.feature = p;
-    ins.label = 0;
-    clfy_dataset_add(data, ins);
-  }
-
-  for (i = 0; i < 200; i++) {
-    point* p = malloc(sizeof(point));
-    p->x = gsl_rng_uniform(rng) + 0.5;
-    p->y = gsl_rng_uniform(rng) + 0.5;
-
-    ins.feature = p;
-    ins.label = 1;
-    clfy_dataset_add(data, ins);
+    clfy_load_dataset(data, argv[1], (loader_func) loader, rng);
   }
 
   clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
