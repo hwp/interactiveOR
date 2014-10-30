@@ -39,19 +39,20 @@ typedef struct {
 /**
  * Free function.
  */
-typedef void (*free_func)(void* ptr);
+typedef void (*clfy_free_func)(void* ptr);
 
 /**
  * Classify function.
  */
-typedef unsigned int (*classify_func)(void* fields, void* feature);
+typedef unsigned int (*clfy_classify_func)(void* fields,
+    void* feature);
 
 /**
  * A classifier.
  */
 typedef struct {
-  classify_func classify;
-  free_func free_self;
+  clfy_classify_func classify;
+  clfy_free_func free_self;
   void* fields;
 } clfy_classifier;
 
@@ -59,7 +60,7 @@ typedef struct {
  * Train function.
  */
 typedef clfy_classifier* (*clfy_train_func)
-  (clfy_dataset* train_data);
+  (clfy_dataset* train_data, void* param);
 
 /**
  * Confusion matrix.
@@ -72,7 +73,7 @@ typedef struct {
 /**
  * Loader function.
  */
-typedef void* (*loader_func)(FILE* stream, void* param);
+typedef void* (*clfy_loader_func)(FILE* stream, void* param);
 
 /**
  * Allocate metadata with empty name list.
@@ -109,7 +110,7 @@ void clfy_dataset_free(clfy_dataset* data);
  * Free the dataset as well as the elements.
  */
 void clfy_dataset_freeall(clfy_dataset* data,
-    free_func free_feature);
+    clfy_free_func free_feature);
 
 /**
  * Add an instance to the dataset.
@@ -148,7 +149,7 @@ void clfy_confmat_fprintf_wide(FILE* stream,
  */
 double clfy_performance(clfy_dataset* train_data,
     clfy_dataset* test_data, clfy_train_func method,
-    clfy_confmat* confmat);
+    void* train_param, clfy_confmat* confmat);
 
 /**
  * Evaluate the classifier using the given data with 
@@ -159,8 +160,8 @@ double clfy_performance(clfy_dataset* train_data,
  * @return the precision.
  */
 double clfy_cross_validate(clfy_dataset* data, 
-    clfy_train_func method, unsigned int nfold,
-    clfy_confmat* confmat);
+    clfy_train_func method, void* train_param,
+    unsigned int nfold, clfy_confmat* confmat);
 
 /**
  * Load data from files.
@@ -169,7 +170,7 @@ double clfy_cross_validate(clfy_dataset* data,
  * function.
  */
 unsigned int clfy_load_dataset(clfy_dataset* data,
-    const char* path, loader_func loader, void* load_param);
+    const char* path, clfy_loader_func loader, void* load_param);
 
 #endif  // CLASSIFY_H_
 

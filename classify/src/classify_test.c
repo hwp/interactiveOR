@@ -31,11 +31,11 @@ void free_s(void* ptr) {
   free(cl);
 }
 
-clfy_classifier* train(clfy_dataset* train_data) {
+clfy_classifier* train(clfy_dataset* train_data, void* param) {
   clfy_classifier* cl = malloc(sizeof(clfy_classifier));
   double* th = malloc(sizeof(double));
 
-  cl->classify = (classify_func) classify;
+  cl->classify = (clfy_classify_func) classify;
   cl->free_self = free_s;
   cl->fields = th;
 
@@ -75,12 +75,12 @@ int main(int argc, char** argv) {
   data->metadata = meta;
 
   for (i = 0; i < 100; i++) {
-    clfy_load_dataset(data, argv[1], (loader_func) loader, rng);
+    clfy_load_dataset(data, argv[1], (clfy_loader_func) loader, rng);
   }
 
   clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
   double precision = clfy_cross_validate(data, train,
-      3, confmat);
+      NULL, 3, confmat);
   printf("Precision = %g\n", precision);
   clfy_confmat_fprintf(stdout, confmat, meta);
 

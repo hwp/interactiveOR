@@ -102,7 +102,7 @@ void clfy_dataset_free(clfy_dataset* data) {
 }
 
 void clfy_dataset_freeall(clfy_dataset* data,
-    free_func free_feature) {
+    clfy_free_func free_feature) {
   unsigned int i;
   for (i = 0; i < data->size; i++) {
     free_feature(data->instances[i].feature);
@@ -183,8 +183,8 @@ void clfy_confmat_fprintf_wide(FILE* stream,
 
 double clfy_performance(clfy_dataset* train_data,
     clfy_dataset* test_data, clfy_train_func method,
-    clfy_confmat* confmat) {
-  clfy_classifier* cl = method(train_data);
+    void* train_param, clfy_confmat* confmat) {
+  clfy_classifier* cl = method(train_data, train_param);
 
   unsigned int i;
   unsigned int correct = 0;
@@ -222,8 +222,8 @@ void divide(clfy_dataset* data, unsigned int* group,
 }
 
 double clfy_cross_validate(clfy_dataset* data,
-    clfy_train_func method, unsigned int nfold,
-    clfy_confmat* confmat) {
+    clfy_train_func method, void* train_param,
+    unsigned int nfold, clfy_confmat* confmat) {
   unsigned int* group = malloc(data->size * sizeof(unsigned int));
   divide(data, group, nfold);
 
@@ -244,7 +244,7 @@ double clfy_cross_validate(clfy_dataset* data,
       }
     }
 
-    sum += clfy_performance(train, test, method, confmat) * test->size;
+    sum += clfy_performance(train, test, method, train_param, confmat) * test->size;
 
     clfy_dataset_free(train);
     clfy_dataset_free(test);
@@ -256,7 +256,7 @@ double clfy_cross_validate(clfy_dataset* data,
 }
 
 unsigned int clfy_load_dataset(clfy_dataset* data,
-    const char* path, loader_func loader, void* load_param) {
+    const char* path, clfy_loader_func loader, void* load_param) {
   unsigned int n = 0;
 
   DIR* dir = opendir(path);
