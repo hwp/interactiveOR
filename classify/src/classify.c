@@ -244,7 +244,12 @@ double clfy_cross_validate(clfy_dataset* data,
       }
     }
 
-    sum += clfy_performance(train, test, method, train_param, confmat) * test->size;
+    fprintf(stderr, "CV Partition %u: %u train, %u test\n",
+        i, train->size, test->size);
+    double precision = clfy_performance(train, test,
+        method, train_param, confmat);
+    sum += precision * test->size;
+    fprintf(stderr, "\tPrecision: %g\n", precision);
 
     clfy_dataset_free(train);
     clfy_dataset_free(test);
