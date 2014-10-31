@@ -9,7 +9,17 @@
 
 #include <stdio.h>
 
+#define _GNU_SOURCE
+#include <fenv.h>
+
+#include <gsl/gsl_rng.h>
+
 int main(int argc, char** argv) {
+  feenableexcept(FE_INVALID);
+
+  gsl_rng_env_setup();
+  gsl_rng* rng = gsl_rng_alloc(gsl_rng_default);
+
   clfy_dataset* data = clfy_dataset_alloc();
   clfy_metadata* meta = clfy_metadata_alloc();
   data->metadata = meta;
@@ -27,6 +37,7 @@ int main(int argc, char** argv) {
   train_param.n = 2;
   train_param.k = 1;
   train_param.dim = param.dim;
+  train_param.rng = rng;
 
   double precision = clfy_cross_validate(data,
       SEQ_HMM_TRAIN, &train_param, 5, confmat);
@@ -36,6 +47,8 @@ int main(int argc, char** argv) {
   clfy_confmat_free(confmat);
   clfy_dataset_freeall(data, free);
   clfy_metadata_free(meta);
+  gsl_rng_free(rng);
+
   return 0;
 }
 

@@ -114,7 +114,7 @@ clfy_classifier* seq_hmm_train(clfy_dataset* train_data,
 
     fprintf(stderr, "Training model for class %s with %u instances\n", train_data->metadata->names[i], nos);
     fprintf(stderr, "Initiating model...\n");
-    random_init(model, seqs, nos);
+    random_init(model, seqs, nos, param->rng);
     fprintf(stderr, "Initiating model DONE.\n");
     fprintf(stderr, "Reestimating model...\n");
     baum_welch(model, seqs, nos);

@@ -29,12 +29,12 @@ int main(int argc, char** argv) {
   size_t nos = 10;
   seq_t** data = calloc(nos, sizeof(seq_t*));
   for (i = 0; i < nos; i++) {
-    data[i] = seq_gen(rng, model, size);
+    data[i] = seq_gen(model, size, rng);
   }
   
   hmmgmm_t* model2 = hmmgmm_alloc(model->n, model->k,
       model->dim);
-  random_init(model2, data, nos);
+  random_init(model2, data, nos, rng);
 
   printf("\n================\nModel 2\n");
   hmmgmm_fprint(stdout, model2);
@@ -71,6 +71,7 @@ int main(int argc, char** argv) {
   }
   free(data);
   gsl_matrix_free(logalpha);
+  gsl_rng_free(rng);
 
   return 0;
 }

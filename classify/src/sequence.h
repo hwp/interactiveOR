@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 
+#include <gsl/gsl_rng.h>
 #include <notghmm/notghmm.h>
 
 #define SEQ_LOADER ((clfy_loader_func) seq_load)
@@ -30,6 +31,7 @@ typedef struct {
   unsigned int n;
   unsigned int k;
   unsigned int dim;
+  gsl_rng* rng;
 } seq_hmm_train_param;
 
 seq_t* seq_load(FILE* stream, seq_load_param* param);
