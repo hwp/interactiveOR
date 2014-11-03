@@ -22,8 +22,9 @@
 *.x86_64
 *.hex
 
-# Build files
+# Build and data files
 build
+data
 
 # Tags
 tags
