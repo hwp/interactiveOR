@@ -7,6 +7,6 @@ do
   g=${f#*audio/}
   a=${g%%/*}
   printf "$n $a "
-  ../build/src/audiomap -w1024 -s256 -fS16_LE -o ../build/audio.som $file
+  ../build/src/audiomap -w256 -s128 -fS16_LE -o ../build/objectsfull.som $file
 done
 

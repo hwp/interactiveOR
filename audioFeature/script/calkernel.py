@@ -48,7 +48,7 @@ def main(argv):
   quiet = False
   showhelp = False
 
-  opts, args = getopt.getopt(argv[1:], "r:c:q")
+  opts, args = getopt.getopt(argv[1:], "r:c:qh")
   for optn, optv in opts:
     if optn == '-r':
       rows = int(optv)
