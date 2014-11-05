@@ -15,7 +15,7 @@
 #include <gsl/gsl_rng.h>
 
 int main(int argc, char** argv) {
-  feenableexcept(FE_INVALID);
+  // feenableexcept(FE_INVALID | FE_DIVBYZERO);
 
   gsl_rng_env_setup();
   gsl_rng* rng = gsl_rng_alloc(gsl_rng_default);
@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
   data->metadata = meta;
 
   seq_load_param param;
-  param.dim = 3;
+  param.dim = 33;
 
   unsigned int size = clfy_load_dataset(data, argv[1],
       SEQ_LOADER, &param);
@@ -34,15 +34,15 @@ int main(int argc, char** argv) {
   clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
 
   seq_hmm_train_param train_param;
-  train_param.n = 2;
-  train_param.k = 1;
+  train_param.n = 3;
+  train_param.k = 2;
   train_param.dim = param.dim;
   train_param.rng = rng;
 
   double precision = clfy_cross_validate(data,
       SEQ_HMM_TRAIN, &train_param, 5, confmat);
   printf("Precision = %g\n", precision);
-  clfy_confmat_fprintf(stdout, confmat, meta);
+  clfy_confmat_fprintf_wide(stdout, confmat, meta, 4);
 
   clfy_confmat_free(confmat);
   clfy_dataset_freeall(data, free);
