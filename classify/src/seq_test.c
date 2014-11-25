@@ -7,7 +7,9 @@
 #include "classify.h"
 #include "sequence.h"
 
+#include <stdlib.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #define _GNU_SOURCE
 #include <fenv.h>
@@ -17,6 +19,40 @@
 int main(int argc, char** argv) {
   // feenableexcept(FE_INVALID | FE_DIVBYZERO);
 
+  // get options
+  int showhelp = 0;
+  unsigned int dim = 0;
+  unsigned int n_states = 0;
+  unsigned int n_comp = 0;
+
+  int opt;
+  while ((opt = getopt(argc, argv, "d:n:k:h")) != -1) {
+    switch (opt) {
+      case 'h':
+        showhelp = 1;
+        break;
+      case 'd':
+        dim = atoi(optarg);
+        break;
+      case 'n':
+        n_states = atoi(optarg);
+        break;
+      case 'k':
+        n_comp = atoi(optarg);
+        break;
+      default:
+        showhelp = 1;
+        break;
+    }
+  }
+
+  if (showhelp || dim <= 0 || n_states <= 0 
+      || n_comp <= 0 || argc - optind < 1) {
+    fprintf(stderr, "Usage: %s -d dimension -n num_states "
+        "-k num_components data_dir\n", argv[0]);
+    exit(EXIT_SUCCESS);
+  }
+
   gsl_rng_env_setup();
   gsl_rng* rng = gsl_rng_alloc(gsl_rng_default);
 
@@ -25,17 +61,17 @@ int main(int argc, char** argv) {
   data->metadata = meta;
 
   seq_load_param param;
-  param.dim = 33;
+  param.dim = dim;
 
-  unsigned int size = clfy_load_dataset(data, argv[1],
+  unsigned int size = clfy_load_dataset(data, argv[optind],
       SEQ_LOADER, &param);
   printf("%u instances loaded\n", size);
 
   clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
 
   seq_hmm_train_param train_param;
-  train_param.n = 3;
-  train_param.k = 2;
+  train_param.n = n_states;
+  train_param.k = n_comp;
   train_param.dim = param.dim;
   train_param.rng = rng;
 
