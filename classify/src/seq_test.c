@@ -6,18 +6,20 @@
 
 #include "classify.h"
 #include "sequence.h"
+#include "debug_utils.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
 
-#define _GNU_SOURCE
-#include <fenv.h>
+// #define _GNU_SOURCE
+// #include <fenv.h>
 
 #include <gsl/gsl_rng.h>
 
 int main(int argc, char** argv) {
   // feenableexcept(FE_INVALID | FE_DIVBYZERO);
+  debug_init();
 
   // get options
   int showhelp = 0;
