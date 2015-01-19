@@ -20,21 +20,12 @@ typedef struct {
 } tagged_instance;
 
 /**
- * Discription of tagged data.
- */
-typedef struct {
-  unsigned int ntags;
-  unsigned int capacity;
-  const char** names;
-} tagged_metadata;
-
-/**
  * A set of tagged data.
  */
 typedef struct {
   unsigned int size;
   unsigned int capacity;
-  tagged_metadata* metadata;
+  clfy_metadata* metadata;
   tagged_instance* instances;
 } tagged_dataset;
 
@@ -70,24 +61,19 @@ typedef struct {
 } tagged_result;
 
 /**
- * Allocate metadata with empty name list.
+ * Allocate a tagged data instance.
  */
-tagged_metadata* tagged_metadata_alloc(void);
+tagged_instance* tagged_instance_alloc(void);
 
 /**
- * Free metadata.
+ * Allocate a tagged data instance.
  */
-void tagged_metadata_free(tagged_metadata* meta);
+void tagged_instance_free(tagged_instance* ins);
 
 /**
- * Lookup the associated index of the name.
- * If the name does not exist in the name list, add it
- * to the end and return the new index.
- *
- * @note the name will be duplicated and saved in the list.
+ * Add a tag to the instance.
  */
-unsigned int tagged_metadata_lookup(tagged_metadata* meta,
-    const char* name);
+void tagged_instance_add(unsigned int tag);
 
 /**
  * Allocate an empty data set.
@@ -127,7 +113,7 @@ void tagged_result_free(tagged_result* result);
 void tagged_result_fprintf(FILE* stream,
     tagged_result* result, clfy_metadata* meta);
 
-/**
+/*
  * Evaluate the tagging model using the train and data.
  * If result is not NULL, the tagged result is saved.
  * The result should be allocated with the correct size.
@@ -155,7 +141,8 @@ double tagged_cross_validate(tagged_dataset* data,
  * This function will search all files with extension 
  * ".fvec" in the given path and load the with the given
  * function.
- * Each file should have a corresponding ".tag" file.
+ * Each file should have a corresponding ".tag" file, which
+ * contains the tags (one each line) of the data instance.
  */
 unsigned int tagged_load_dataset(tagged_dataset* data,
     const char* path, clfy_loader_func loader, void* load_param);
