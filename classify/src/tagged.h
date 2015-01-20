@@ -26,7 +26,7 @@ typedef struct {
   unsigned int size;
   unsigned int capacity;
   clfy_metadata* metadata;
-  tagged_instance* instances;
+  tagged_instance** instances;
 } tagged_dataset;
 
 /**
@@ -54,7 +54,16 @@ typedef tagged_model* (*tagged_train_func)
  * Tagged performance result.
  */
 typedef struct {
+  /**
+   * Number of tags.
+   */
   unsigned int size;
+
+  /**
+   * Total instances.
+   */
+  unsigned int total;
+
   unsigned int* tp;     // True Positive
   unsigned int* fp;     // False Positive
   unsigned int* fn;     // False Negative 
@@ -68,12 +77,14 @@ tagged_instance* tagged_instance_alloc(void);
 /**
  * Allocate a tagged data instance.
  */
-void tagged_instance_free(tagged_instance* ins);
+void tagged_instance_free(tagged_instance* ins,
+    clfy_free_func feature_free);
 
 /**
  * Add a tag to the instance.
  */
-void tagged_instance_add(unsigned int tag);
+void tagged_instance_add(tagged_instance ins,
+    unsigned int tag);
 
 /**
  * Allocate an empty data set.
@@ -90,12 +101,14 @@ void tagged_dataset_free(tagged_dataset* data);
  * Free the dataset as well as the elements.
  */
 void tagged_dataset_freeall(tagged_dataset* data,
-    clfy_free_func free_feature);
+    clfy_free_func feature_free);
 
 /**
  * Add an instance to the dataset.
+ * @note the pointer is to the instance is stored,
+ *       but the data is not copied.
  */
-void tagged_dataset_add(tagged_dataset* data, tagged_instance ins);
+void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins);
 
 /**
  * Allocate memory for tagged result.
