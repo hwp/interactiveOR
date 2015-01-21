@@ -138,29 +138,67 @@ void tagged_result_free(tagged_result* result) {
   }
 }
 
-void tagged_result_fprintf(FILE* stream,
-    tagged_result* result, clfy_metadata* meta) {
+void tagged_result_fprintf(FILE* stream, tagged_result* result,
+    const char* name) {
   name_width = 8;
   number_width = 6;
 
-  assert(result->size == meta->nclass);
+  fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g\n",
+      name_width, name, number_width, result->tp,
+      number_width, result->fp, number_width, result->fn,
+      number_width, result->total,
+      number_width, TAGGED_PRECISION(*result),
+      number_width, TAGGED_RECALL(*result),
+      number_width, TAGGED_FMEASURE(*result));
+}
 
-  unsigned int i;
-  for (i = 0; i < meta->nclass; i++) {
-    unsigned int tp = result->tp[i];
-    unsigned int fp = result->fp[i];
-    unsigned int fn = result->fn[i];
-    unsigned int tn = result->total - tp - fp - fn;
-    double precision = (double) tp / (double) (tp + fp);
-    double recall = (double) tp / (double) (tp + fn);
+void tagged_evaluate(tagged_model* model, tagged_dataset* data,
+    unsigned int tag, double* probability, unsigned int* gold_std) {
+  unsigned int i, j;
+  for (i = 0; i < data->size; i++) {
+    tagged_instance* e = data->instances[i];
+    probability[i] = model->tag_prob(model->fields, e->feature);
 
-    fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g\n",
-        name_width, meta->names[i], number_width, tp,
-        number_width, fp, number_width, fn,
-        number_width, tn, number_width, precision,
-        number_width, recall, number_width, 
-        2.0 * precision * recall / (precision + recall));
+    gold_std[i] = 0;
+    for (j = 0; j < e->ntags; j++) {
+      if (e->tags[j] == tag) {
+        gold_std[i] = 1;
+        break;
+      }
+    }
   }
+}
+
+double tagged_performance(double prob_threshold, unsigned int size,
+    double* probability, unsigned int* gold_std, tagged_result* result) {
+  unsigned int i;
+
+  result->tp = 0;
+  result->fp = 0;
+  result->fn = 0;
+  result->total = size;
+
+  for (i = 0; i < size; i++) {
+    if (probability[i] >= prob_threshold) {
+      if (gold_std[i]) {
+        result->tp++;
+      }
+      else {
+        result->fp++;
+      }
+    }
+    else {
+      if (gold_std[i]) {
+        result->fn++;
+      }
+    }
+  }
+}
+
+void tagged_cross_validate(tagged_dataset* data, 
+    tagged_train_func method, void* train_param, unsigned int nfold,
+    double* probability, unsigned int* gold_std) {
+  //TODO
 }
 
 unsigned int tagged_load_dataset(tagged_dataset* data,

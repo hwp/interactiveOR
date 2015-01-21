@@ -30,16 +30,16 @@ typedef struct {
 } tagged_dataset;
 
 /**
- * Tag function.
+ * Tag probability function.
+ * 
  */
-typedef void (*tagged_tag_func)(void* fields,
-    void* feature, double* result);
+typedef double (*tagged_tagprob_func)(void* fields, void* feature);
 
 /**
  * A tag model.
  */
 typedef struct {
-  tagged_tag_func tag;
+  tagged_tagprob_func tag_prob;
   clfy_free_func free_self;
   void* fields;
 } tagged_model;
@@ -47,27 +47,45 @@ typedef struct {
 /**
  * Train function.
  */
-typedef tagged_model* (*tagged_train_func)
-  (tagged_dataset* train_data, void* param);
+typedef tagged_model* (*tagged_train_func) (tagged_dataset* train_data,
+    unsigned int tag, void* param);
 
 /**
  * Tagged performance result.
  */
 typedef struct {
   /**
-   * Number of tags.
-   */
-  unsigned int size;
-
-  /**
    * Total instances.
    */
   unsigned int total;
 
-  unsigned int* tp;     // True Positive
-  unsigned int* fp;     // False Positive
-  unsigned int* fn;     // False Negative 
+  /**
+   * True Positive.
+   */
+  unsigned int tp;
+
+  /**
+   * False Positive.
+   */
+  unsigned int fp;
+
+  /**
+   * False Negative.
+   */
+  unsigned int fn;
 } tagged_result;
+
+#define TAGGED_PRECISION(r) \
+  ((double) (r).tp / (double) ((r).tp + (r).fp)) 
+
+#define TAGGED_RECALL(r) \
+  ((double) (r).tp / (double) ((r).tp + (r).fn)) 
+
+#define TAGGED_FMEASURE(r) \
+  (2.0 / (1.0 / TAGGED_PRECISION(r) + 1.0 / TAGGED_RECALL(r)))
+
+#define TAGGED_ACCURACY(r) \
+  ((double) ((r).total - (r).fn - (r).fp) / (double) (r).total) 
 
 /**
  * Allocate a tagged data instance.
@@ -83,8 +101,7 @@ void tagged_instance_free(tagged_instance* ins,
 /**
  * Add a tag to the instance.
  */
-void tagged_instance_add(tagged_instance ins,
-    unsigned int tag);
+void tagged_instance_add(tagged_instance ins, unsigned int tag);
 
 /**
  * Allocate an empty data set.
@@ -111,43 +128,34 @@ void tagged_dataset_freeall(tagged_dataset* data,
 void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins);
 
 /**
- * Allocate memory for tagged result.
- */
-tagged_result* tagged_result_alloc(unsigned int size);
-
-/**
- * Free memory for tagged result.
- */
-void tagged_result_free(tagged_result* result);
-
-/**
  * Print tagged result.
  */ 
 void tagged_result_fprintf(FILE* stream,
     tagged_result* result, clfy_metadata* meta);
 
-/*
- * Evaluate the tagging model using the train and data.
- * If result is not NULL, the tagged result is saved.
- * The result should be allocated with the correct size.
- *
- * @return the precision.
+/**
+ * Calculate the probability of each instance being of the tag.
+ * probability and gold_std should be size of data->size.
  */
-double tagged_performance(tagged_dataset* train_data,
-    tagged_dataset* test_data, tagged_train_func method,
-    void* train_param, tagged_result* result);
+void tagged_evaluate(tagged_model* model, tagged_dataset* data,
+    unsigned int tag, double* probability, unsigned int* gold_std);
 
 /**
- * Evaluate the tagging model using the given data with 
- * cross validation.
- * If result is not NULL, the tagged result is saved.
- * The result should be allocated with the correct size.
+ * Calculate the binary classification result according to a probablity
+ * threshold.
  *
- * @return the precision.
+ * @return F1 Measure.
  */
-double tagged_cross_validate(tagged_dataset* data, 
-    tagged_train_func method, void* train_param,
-    unsigned int nfold, tagged_result* result);
+double tagged_performance(double prob_threshold, unsigned int size,
+    double* probability, unsigned int* gold_std, tagged_result* result);
+
+/**
+ * Calculate the probabilities using the given data with 
+ * cross validation.
+ */
+void tagged_cross_validate(tagged_dataset* data, 
+    tagged_train_func method, void* train_param, unsigned int nfold,
+    double* probability, unsigned int* gold_std);
 
 /**
  * Load data from files.
