@@ -57,6 +57,16 @@ void tagged_instance_add(tagged_instance ins,
   return ins->ntags - 1;
 }
 
+unsigned int tagged_instance_hastag(tagged_instance* ins, unsigned int tag) {
+  unsigned int j;
+  for (j = 0; j < ins->ntags; j++) {
+    if (ins->tags[j] == tag) {
+      return 1;
+    }
+  }
+  return 0;
+}
+
 tagged_dataset* tagged_dataset_alloc(void) {
   tagged_dataset* ret = malloc(sizeof(tagged_dataset));
   tagged_instance** instances = malloc(DATASET_INIT_CAPACITY
@@ -154,18 +164,12 @@ void tagged_result_fprintf(FILE* stream, tagged_result* result,
 
 void tagged_evaluate(tagged_model* model, tagged_dataset* data,
     unsigned int tag, double* probability, unsigned int* gold_std) {
-  unsigned int i, j;
+  unsigned int i;
   for (i = 0; i < data->size; i++) {
     tagged_instance* e = data->instances[i];
     probability[i] = model->tag_prob(model->fields, e->feature);
 
-    gold_std[i] = 0;
-    for (j = 0; j < e->ntags; j++) {
-      if (e->tags[j] == tag) {
-        gold_std[i] = 1;
-        break;
-      }
-    }
+    gold_std[i] = tagged_instance_hastag(e, i);
   }
 }
 

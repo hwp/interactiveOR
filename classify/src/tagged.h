@@ -101,7 +101,14 @@ void tagged_instance_free(tagged_instance* ins,
 /**
  * Add a tag to the instance.
  */
-void tagged_instance_add(tagged_instance ins, unsigned int tag);
+void tagged_instance_add(tagged_instance* ins, unsigned int tag);
+
+/**
+ * Check if the instance has the tag.
+ *
+ * @return 1 if the instance has the tag, otherwise return 0.
+ */
+unsigned int tagged_instance_hastag(tagged_instance* ins, unsigned int tag);
 
 /**
  * Allocate an empty data set.
