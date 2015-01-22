@@ -8,6 +8,7 @@
 #define SEQUENCE_H_
 
 #include "classify.h"
+#include "tagged.h"
 
 #include <stdio.h>
 
@@ -34,11 +35,17 @@ typedef struct {
   gsl_rng* rng;
 } seq_hmm_train_param;
 
+/**
+ * @warning returned pointer should be freed after use.
+ */
 seq_t* seq_load(FILE* stream, seq_load_param* param);
 
 unsigned int seq_hmm_classify(seq_hmm_attr* attr,
     seq_t* seq);
 
+/**
+ * @warning returned pointer should be freed after use.
+ */
 clfy_classifier* seq_hmm_train(clfy_dataset* train_data,
     seq_hmm_train_param* param);
 
