@@ -65,23 +65,32 @@ int main(int argc, char** argv) {
       SEQ_LOADER, &param);
   printf("%u instances loaded\n", size);
 
-  /*
-  clfy_confmat* confmat = clfy_confmat_alloc(meta->nclass);
-
   seq_hmm_train_param train_param;
   train_param.n = n_states;
   train_param.k = n_comp;
   train_param.dim = param.dim;
   train_param.rng = rng;
 
-  double precision = clfy_cross_validate(data,
-      SEQ_HMM_TRAIN, &train_param, 5, confmat);
-  printf("Precision = %g\n", precision);
-  clfy_confmat_fprintf_wide(stdout, confmat, meta, 4);
+  tagged_model* model = seq_tag_train(data, 0, &train_param);
+  
+  double* prob = malloc(data->size * sizeof(double));
+  unsigned int* gold = malloc(data->size * sizeof(unsigned int));
 
-  clfy_confmat_free(confmat);
-  */
+  tagged_evaluate(model, data, 0, prob, gold);
 
+  tagged_result result;
+  tagged_performance(.5, data->size, prob, gold, &result);
+
+  tagged_result_fprintf(stdout, &result, meta->names[0]);
+
+  unsigned int i;
+  for (i = 0; i < data->size; i++) {
+    printf("%*g %*d\n", 10, prob[i], 5, gold[i]);
+  }
+
+  free(prob);
+  free(gold);
+  model->free_self(model);
   tagged_dataset_freeall(data, free);
   clfy_metadata_free(meta);
   gsl_rng_free(rng);

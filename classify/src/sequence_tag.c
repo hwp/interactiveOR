@@ -18,20 +18,22 @@ double seq_tag_prob(seq_hmm_attr* attr, seq_t* seq) {
   gsl_matrix* logalpha = gsl_matrix_alloc(seq->size, n);
 
   forward_proc_log(attr->models[0], seq, logalpha);
-  double pos = exp(hmm_log_likelihood(logalpha));
+  double pos = hmm_log_likelihood(logalpha);
 
   forward_proc_log(attr->models[1], seq, logalpha);
-  double neg = exp(hmm_log_likelihood(logalpha));
+  double neg = hmm_log_likelihood(logalpha);
+
+  fprintf(stderr, "%g %g\n", pos, neg);
 
   gsl_matrix_free(logalpha);
   
-  if (pos + neg == 0.0) {
-    // Unseen object consider as negative
-    fprintf(stderr, "Warning: Unseen object. Tag negative.\n");
-    return 0.0;
+  if (isnormal(neg - pos)) {
+    return 1.0 / (1.0 + exp(neg - pos));
   }
-  else { // pos + neg > 0
-    return pos / (pos + neg);
+  else { 
+    fprintf(stderr, "Warning: neg - pos is nan, neg = %g, pos = %g\n",
+        neg, pos);
+    return 0.0;
   }
 }
 
@@ -75,7 +77,7 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
 
   for (i = 0; i < train_data->size; i++) {
     tagged_instance* ins = train_data->instances[i];
-    if (tagged_instance_hastag(ins, i)) {
+    if (tagged_instance_hastag(ins, tag)) {
       seqs[cp] = ins->feature;
       cp++;
     }

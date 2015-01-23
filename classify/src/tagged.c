@@ -122,6 +122,11 @@ void tagged_result_fprintf(FILE* stream, tagged_result* result,
   int name_width = 8;
   int number_width = 6;
 
+  fprintf(stream, "%*s %*s %*s %*s %*s %*s %*s %*s\n",
+      name_width, "name", number_width, "tp",
+      number_width, "fp", number_width, "fn",
+      number_width, "total", number_width, "prec",
+      number_width, "reca", number_width, "fmea");
   fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g\n",
       name_width, name, number_width, result->tp,
       number_width, result->fp, number_width, result->fn,
@@ -138,7 +143,7 @@ void tagged_evaluate(tagged_model* model, tagged_dataset* data,
     tagged_instance* e = data->instances[i];
     probability[i] = model->tag_prob(model->fields, e->feature);
 
-    gold_std[i] = tagged_instance_hastag(e, i);
+    gold_std[i] = tagged_instance_hastag(e, tag);
   }
 }
 
@@ -197,7 +202,7 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
         strcpy(tagpath, filepath);
         dot = strrchr(tagpath, '.');
         strcpy(dot, ".tag");
-        FILE* tagin = fopen(filepath, "r");
+        FILE* tagin = fopen(tagpath, "r");
 
         if (in && tagin) {
           tagged_instance* ins = tagged_instance_alloc();
@@ -206,11 +211,18 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
 
           if (ins->feature) {
             char* line = NULL;
-            size_t len;
+            size_t len = 0;
             ssize_t read;
             while ((read = getline(&line, &len, tagin)) != -1)  {
-              int tid = clfy_metadata_lookup(data->metadata, line);
-              tagged_instance_add(ins, tid);
+              size_t l = strlen(line);
+              if (l > 0 && line[l-1] == '\n') {
+                line[l - 1] = '\0';
+                l--;
+              }
+              if (l > 0) {
+                int tid = clfy_metadata_lookup(data->metadata, line);
+                tagged_instance_add(ins, tid);
+              }
             }
 
             free(line);
