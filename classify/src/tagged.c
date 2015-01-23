@@ -175,10 +175,60 @@ double tagged_performance(double prob_threshold, unsigned int size,
   return TAGGED_FMEASURE(*result);
 }
 
-void tagged_cross_validate(tagged_dataset* data, 
+static void divide(tagged_dataset* data, unsigned int tag,
+    unsigned int* group, unsigned int nfold) {
+  unsigned int pc = 0;
+  unsigned int nc = 0;
+
+  unsigned int i;
+  for (i = 0; i < data->size; i++) {
+    if (tagged_instance_hastag(data->instances[i], tag)) {
+      group[i] = pc;
+      pc = (pc + 1) % nfold;
+    }
+    else {
+      group[i] = nc;
+      nc = (nc + 1) % nfold;
+    }
+  }
+}
+
+void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param, unsigned int nfold,
     double* probability, unsigned int* gold_std) {
-  //TODO
+  unsigned int* group = malloc(data->size * sizeof(unsigned int));
+  divide(data, tag, group, nfold);
+
+  unsigned int i, j;
+  unsigned int res_offset = 0;
+  for (i = 0; i < nfold; i++) {
+    tagged_dataset* train = tagged_dataset_alloc();
+    train->metadata = data->metadata;
+    tagged_dataset* test = tagged_dataset_alloc();
+    test->metadata = data->metadata;
+
+    for (j = 0; j < data->size; j++) {
+      if (group[j] == i) {
+        tagged_dataset_add(test, data->instances[j]);
+      }
+      else {
+        tagged_dataset_add(train, data->instances[j]);
+      }
+    }
+
+    fprintf(stderr, "CV Partition %u: %u train, %u test\n",
+        i, train->size, test->size);
+    tagged_model* model = method(train, tag, train_param);
+    tagged_evaluate(model, test, tag, probability + res_offset,
+        gold_std + res_offset);
+    res_offset += test->size;
+
+    model->free_self(model);
+    tagged_dataset_free(train);
+    tagged_dataset_free(test);
+  }
+
+  free(group);
 }
 
 unsigned int tagged_load_dataset(tagged_dataset* data,

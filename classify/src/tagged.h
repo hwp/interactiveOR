@@ -160,7 +160,7 @@ double tagged_performance(double prob_threshold, unsigned int size,
  * Calculate the probabilities using the given data with 
  * cross validation.
  */
-void tagged_cross_validate(tagged_dataset* data, 
+void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param, unsigned int nfold,
     double* probability, unsigned int* gold_std);
 

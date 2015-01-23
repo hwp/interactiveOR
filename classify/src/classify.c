@@ -206,7 +206,7 @@ double clfy_performance(clfy_dataset* train_data,
   return (double) correct / (double) test_data->size;
 }
 
-void divide(clfy_dataset* data, unsigned int* group,
+static void divide(clfy_dataset* data, unsigned int* group,
     unsigned int nfold) {
   unsigned int* ctr = calloc(data->metadata->nclass,
       sizeof(unsigned int));

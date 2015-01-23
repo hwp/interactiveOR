@@ -23,8 +23,6 @@ double seq_tag_prob(seq_hmm_attr* attr, seq_t* seq) {
   forward_proc_log(attr->models[1], seq, logalpha);
   double neg = hmm_log_likelihood(logalpha);
 
-  fprintf(stderr, "%g %g\n", pos, neg);
-
   gsl_matrix_free(logalpha);
   
   if (isnormal(neg - pos)) {

@@ -71,12 +71,11 @@ int main(int argc, char** argv) {
   train_param.dim = param.dim;
   train_param.rng = rng;
 
-  tagged_model* model = seq_tag_train(data, 0, &train_param);
-  
   double* prob = malloc(data->size * sizeof(double));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
 
-  tagged_evaluate(model, data, 0, prob, gold);
+  tagged_cross_validate(data, 0, SEQ_TAG_TRAIN, &train_param,
+      5, prob, gold);
 
   tagged_result result;
   tagged_performance(.5, data->size, prob, gold, &result);
@@ -90,7 +89,6 @@ int main(int argc, char** argv) {
 
   free(prob);
   free(gold);
-  model->free_self(model);
   tagged_dataset_freeall(data, free);
   clfy_metadata_free(meta);
   gsl_rng_free(rng);
