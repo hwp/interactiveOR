@@ -6,6 +6,11 @@
 
 #include "tagged.h"
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <dirent.h>
+#include <errno.h>
 #include <assert.h>
 
 #define INSTANCE_INIT_CAPACITY 10
@@ -13,7 +18,7 @@
 
 tagged_instance* tagged_instance_alloc(void) {
   tagged_instance* ret = malloc(sizeof(tagged_instance));
-  const char** tags = malloc(INSTANCE_INIT_CAPACITY
+  unsigned int* tags = malloc(INSTANCE_INIT_CAPACITY
       * sizeof(unsigned int));
 
   if (ret && tags) {
@@ -37,13 +42,12 @@ void tagged_instance_free(tagged_instance* ins,
     if (feature_free) {
       feature_free(ins->feature);
     }
-    free(ins->names);
+    free(ins->tags);
     free(ins);
   }
 }
 
-void tagged_instance_add(tagged_instance ins,
-    unsigned int tag) {
+void tagged_instance_add(tagged_instance* ins, unsigned int tag) {
   if (ins->ntags == ins->capacity) {
     ins->capacity *= 2;
     ins->tags = realloc(ins->tags,
@@ -53,8 +57,6 @@ void tagged_instance_add(tagged_instance ins,
 
   ins->tags[ins->ntags] = tag;
   ins->ntags++;
-
-  return ins->ntags - 1;
 }
 
 unsigned int tagged_instance_hastag(tagged_instance* ins, unsigned int tag) {
@@ -115,43 +117,10 @@ void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins) {
   data->size++;
 }
 
-tagged_result* tagged_result_alloc(unsigned int size) {
-  tagged_result* ret = malloc(sizeof(tagged_result));
-  unsigned int* tp = calloc(size, sizeof(unsigned int));
-  unsigned int* fp = calloc(size, sizeof(unsigned int));
-  unsigned int* fn = calloc(size, sizeof(unsigned int));
-
-  if (ret && tp && fp && fn) {
-    ret->size = size;
-    ret->tp = tp;
-    ret->fp = fp;
-    ret->fn = fn;
-    ret->total = 0;
-  }
-  else {
-    free(ret);
-    free(tp);
-    free(fp);
-    free(fn);
-    ret = NULL;
-  }
-
-  return ret;
-}
-
-void tagged_result_free(tagged_result* result) {
-  if (result) {
-    free(result->tp);
-    free(result->fp);
-    free(result->fn);
-    free(result);
-  }
-}
-
 void tagged_result_fprintf(FILE* stream, tagged_result* result,
     const char* name) {
-  name_width = 8;
-  number_width = 6;
+  int name_width = 8;
+  int number_width = 6;
 
   fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g\n",
       name_width, name, number_width, result->tp,
@@ -197,6 +166,8 @@ double tagged_performance(double prob_threshold, unsigned int size,
       }
     }
   }
+
+  return TAGGED_FMEASURE(*result);
 }
 
 void tagged_cross_validate(tagged_dataset* data, 
@@ -233,8 +204,8 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
 
           ins->feature = loader(in, load_param);
 
-          if (ins.feature) {
-            char* line;
+          if (ins->feature) {
+            char* line = NULL;
             size_t len;
             ssize_t read;
             while ((read = getline(&line, &len, tagin)) != -1)  {

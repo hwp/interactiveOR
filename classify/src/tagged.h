@@ -137,8 +137,8 @@ void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins);
 /**
  * Print tagged result.
  */ 
-void tagged_result_fprintf(FILE* stream,
-    tagged_result* result, clfy_metadata* meta);
+void tagged_result_fprintf(FILE* stream, tagged_result* result,
+    const char* name);
 
 /**
  * Calculate the probability of each instance being of the tag.
