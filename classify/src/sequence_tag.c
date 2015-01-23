@@ -25,8 +25,9 @@ double seq_tag_prob(seq_hmm_attr* attr, seq_t* seq) {
 
   gsl_matrix_free(logalpha);
   
-  if (isnormal(neg - pos)) {
-    return 1.0 / (1.0 + exp(neg - pos));
+  double diff = (neg - pos) / (double) seq->size;
+  if (isnormal(diff)) {
+    return 1.0 / (1.0 + exp(diff));
   }
   else { 
     fprintf(stderr, "Warning: neg - pos is nan, neg = %g, pos = %g\n",

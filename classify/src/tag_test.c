@@ -74,17 +74,15 @@ int main(int argc, char** argv) {
   double* prob = malloc(data->size * sizeof(double));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
 
-  tagged_cross_validate(data, 0, SEQ_TAG_TRAIN, &train_param,
-      5, prob, gold);
-
-  tagged_result result;
-  tagged_performance(.5, data->size, prob, gold, &result);
-
-  tagged_result_fprintf(stdout, &result, meta->names[0]);
-
   unsigned int i;
-  for (i = 0; i < data->size; i++) {
-    printf("%*g %*d\n", 10, prob[i], 5, gold[i]);
+  for(i = 0; i < meta->nclass; i++) {
+    tagged_cross_validate(data, i, SEQ_TAG_TRAIN, &train_param,
+        5, prob, gold);
+
+    tagged_result result;
+    tagged_performance(.5, data->size, prob, gold, &result);
+
+    tagged_result_fprintf(stdout, &result, meta->names[i]);
   }
 
   free(prob);
