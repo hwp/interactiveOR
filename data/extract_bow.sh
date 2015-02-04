@@ -1,15 +1,15 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 -r frame_rate -v vocabulary_file -o outdir files" >&2
+  echo "Usage: $0 -f frame_rate -v vocabulary_file -o outdir files" >&2
   exit 1
 }
 
 cmd="$0 $@"
 
-while getopts "r:v:o:" opt; do
+while getopts "f:v:o:" opt; do
   case $opt in
-    r)
+    f)
       frate=$OPTARG
       ;;
     v)
@@ -31,7 +31,8 @@ frre='^[0-9]+/[0-9]+$'
 [[ $frate =~ $frre ]] && [[ -n $files ]] && [[ -n $outdir ]] || usage
 
 if [[ -d $outdir ]]; then
-  echo "Warning: directory $outdir exists and will be overwritted." >&2
+  echo "Error: directory $outdir exists" >&2
+  exit 1
 elif [[ -e $outdir ]]; then
   echo "Error: file $outdir exists" >&2
   exit 1
@@ -51,7 +52,7 @@ echo "Vocabulary: $vocfl" >> "${outdir}/README"
 echo "Format: double" >> "${outdir}/README"
 echo "Frame Rate: $frate" >> "${outdir}/README"
 
-echo "# this file records the raw audio file of the feature data" > "${outdir}/SOURCES"
+echo "# this file records the raw media file of the feature data" > "${outdir}/SOURCES"
 
 id=0
 for file in $files; do
@@ -62,7 +63,8 @@ for file in $files; do
   dest="${class}_${id}.fvec"
   echo "$dest < $file" >> "${outdir}/SOURCES"
   gst-launch-1.0 -q filesrc location="$file" ! avidemux name=demux \
-    demux.video_0 ! decodebin ! videorate ! video/x-raw,framerate=$frate ! videoconvert ! bow vocabulary="$vocfl" location="$outdir/$dest" ! fakesink \
+    demux.video_0 ! decodebin ! videorate ! video/x-raw,framerate=$frate ! videoconvert \
+    ! bow vocabulary="$vocfl" location="$outdir/$dest" ! fakesink \
     || exit 1
   id=$((id + 1))
 done
