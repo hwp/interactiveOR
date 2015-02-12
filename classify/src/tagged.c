@@ -124,18 +124,20 @@ void tagged_result_fprintf(FILE* stream, tagged_result* result,
   int name_width = 8;
   int number_width = 8;
 
-  fprintf(stream, "%*s %*s %*s %*s %*s %*s %*s %*s\n",
+  fprintf(stream, "%*s %*s %*s %*s %*s %*s %*s %*s %*s\n",
       name_width, "name", number_width, "tp",
       number_width, "fp", number_width, "fn",
       number_width, "total", number_width, "prec",
-      number_width, "reca", number_width, "fmea");
-  fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g\n",
+      number_width, "reca", number_width, "fmea",
+      number_width, "kappa");
+  fprintf(stream, "%*s %*d %*d %*d %*d %*g %*g %*g %*g\n",
       name_width, name, number_width, result->tp,
       number_width, result->fp, number_width, result->fn,
       number_width, result->total,
       number_width, TAGGED_PRECISION(*result),
       number_width, TAGGED_RECALL(*result),
-      number_width, TAGGED_FMEASURE(*result));
+      number_width, TAGGED_FMEASURE(*result),
+      number_width, TAGGED_KAPPA(*result));
 }
 
 void tagged_evaluate(tagged_model* model, tagged_dataset* data,

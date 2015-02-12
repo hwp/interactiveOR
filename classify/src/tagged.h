@@ -88,6 +88,14 @@ typedef struct {
 #define TAGGED_ACCURACY(r) \
   ((double) ((r).total - (r).fn - (r).fp) / (double) (r).total) 
 
+#define TAGGED_PE(r) \
+  ((double) (((r).tp + (r).fp) * ((r).tp + (r).fn) \
+    + ((r).total - (r).tp - (r).fp) * ((r).total - (r).tp - (r).fn)) \
+   / (double) ((r).total * (r).total))
+
+#define TAGGED_KAPPA(r) \
+  ((TAGGED_ACCURACY(r) - TAGGED_PE(r)) / (1.0 - TAGGED_PE(r)))
+
 /**
  * Allocate a tagged data instance.
  */
