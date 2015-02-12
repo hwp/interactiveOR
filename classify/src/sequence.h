@@ -32,6 +32,7 @@ typedef struct {
   unsigned int n;
   unsigned int k;
   unsigned int dim;
+  int cov_diag;
   gsl_rng* rng;
 } seq_hmm_train_param;
 

@@ -26,9 +26,10 @@ int main(int argc, char** argv) {
   unsigned int dim = 0;
   unsigned int n_states = 0;
   unsigned int n_comp = 0;
+  int cov_diag = 0;
 
   int opt;
-  while ((opt = getopt(argc, argv, "d:n:k:h")) != -1) {
+  while ((opt = getopt(argc, argv, "d:n:k:c:h")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -42,6 +43,9 @@ int main(int argc, char** argv) {
       case 'k':
         n_comp = atoi(optarg);
         break;
+      case 'c':
+        cov_diag = atoi(optarg);
+        break;
       default:
         showhelp = 1;
         break;
@@ -51,7 +55,7 @@ int main(int argc, char** argv) {
   if (showhelp || dim <= 0 || n_states <= 0 
       || n_comp <= 0 || argc - optind < 1) {
     fprintf(stderr, "Usage: %s -d dimension -n num_states "
-        "-k num_components data_dir\n", argv[0]);
+        "-k num_components [-c cov_diag] data_dir\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
 
@@ -76,6 +80,7 @@ int main(int argc, char** argv) {
   train_param.k = n_comp;
   train_param.dim = param.dim;
   train_param.rng = rng;
+  train_param.cov_diag = cov_diag;
 
   double precision = clfy_cross_validate(data,
       SEQ_HMM_TRAIN, &train_param, 5, confmat);
@@ -83,7 +88,7 @@ int main(int argc, char** argv) {
   clfy_confmat_fprintf_wide(stdout, confmat, meta, 4);
 
   clfy_confmat_free(confmat);
-  clfy_dataset_freeall(data, free);
+  clfy_dataset_freeall(data, SEQ_FREE);
   clfy_metadata_free(meta);
   gsl_rng_free(rng);
 

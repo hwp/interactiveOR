@@ -26,9 +26,10 @@ int main(int argc, char** argv) {
   unsigned int dim = 0;
   unsigned int n_states = 0;
   unsigned int n_comp = 0;
+  int cov_diag = 0;
 
   int opt;
-  while ((opt = getopt(argc, argv, "t:d:n:k:h")) != -1) {
+  while ((opt = getopt(argc, argv, "t:d:n:k:c:h")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -45,6 +46,9 @@ int main(int argc, char** argv) {
       case 'k':
         n_comp = atoi(optarg);
         break;
+      case 'c':
+        cov_diag = atoi(optarg);
+        break;
       default:
         showhelp = 1;
         break;
@@ -54,7 +58,7 @@ int main(int argc, char** argv) {
   if (showhelp || trials <= 0 || dim <= 0 || n_states <= 0 
       || n_comp <= 0 || argc - optind < 1) {
     fprintf(stderr, "Usage: %s -t num_trials -d dimension "
-        "-n num_states -k num_components seq_files\n", argv[0]);
+        "-n num_states -k num_components [-c cov_diag] seq_files\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
 
@@ -78,7 +82,7 @@ int main(int argc, char** argv) {
     fclose(in);
   }
 
-  hmmgmm_t* model = hmmgmm_alloc(n_states, n_comp, dim);
+  hmmgmm_t* model = hmmgmm_alloc(n_states, n_comp, dim, cov_diag);
 
   double like;
   for (i = 0; i < trials; i++) {

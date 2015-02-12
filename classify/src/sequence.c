@@ -100,7 +100,7 @@ clfy_classifier* seq_hmm_train(clfy_dataset* train_data,
 
   for (i = 0; i < attr->nclass; i++) {
     hmmgmm_t* model = hmmgmm_alloc(param->n, param->k,
-        param->dim);
+        param->dim, param->cov_diag);
     attr->models[i] = model;
 
     unsigned int nos = 0;

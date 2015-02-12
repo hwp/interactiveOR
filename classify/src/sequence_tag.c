@@ -88,7 +88,8 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
 
   assert(cp + cn == train_data->size);
 
-  hmmgmm_t* model = hmmgmm_alloc(param->n, param->k, param->dim);
+  hmmgmm_t* model = hmmgmm_alloc(param->n, param->k,
+      param->dim, param->cov_diag);
   attr->models[0] = model; 
 
   fprintf(stderr, "Training positive model with %u instances\n", cp);
@@ -99,7 +100,8 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
   baum_welch(model, seqs, cp);
   fprintf(stderr, "Restimating model DONE.\n");
 
-  model = hmmgmm_alloc(param->n, param->k, param->dim);
+  model = hmmgmm_alloc(param->n, param->k, param->dim,
+      param->cov_diag);
   attr->models[1] = model; 
 
   fprintf(stderr, "Training negative model with %u instances\n", cn);

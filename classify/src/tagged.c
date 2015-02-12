@@ -120,7 +120,7 @@ void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins) {
 void tagged_result_fprintf(FILE* stream, tagged_result* result,
     const char* name) {
   int name_width = 8;
-  int number_width = 6;
+  int number_width = 8;
 
   fprintf(stream, "%*s %*s %*s %*s %*s %*s %*s %*s\n",
       name_width, "name", number_width, "tp",
