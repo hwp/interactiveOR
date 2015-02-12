@@ -26,6 +26,7 @@ tagged_instance* tagged_instance_alloc(void) {
     ret->ntags = 0;
     ret->capacity = INSTANCE_INIT_CAPACITY;
     ret->tags = tags;
+    ret->source = NULL;
   }
   else {
     free(ret);
@@ -43,6 +44,7 @@ void tagged_instance_free(tagged_instance* ins,
       feature_free(ins->feature);
     }
     free(ins->tags);
+    free(ins->source);
     free(ins);
   }
 }
@@ -142,8 +144,9 @@ void tagged_evaluate(tagged_model* model, tagged_dataset* data,
   for (i = 0; i < data->size; i++) {
     tagged_instance* e = data->instances[i];
     probability[i] = model->tag_prob(model->fields, e->feature);
-
     gold_std[i] = tagged_instance_hastag(e, tag);
+
+    printf("%*s %*d %*.3f\n", 15, e->source, 5, gold_std[i], 8, probability[i]);
   }
 }
 
@@ -250,13 +253,14 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
         FILE* in = fopen(filepath, "r");
 
         strcpy(tagpath, filepath);
-        dot = strrchr(tagpath, '.');
-        strcpy(dot, ".tag");
+        char* tdot = strrchr(tagpath, '.');
+        strcpy(tdot, ".tag");
         FILE* tagin = fopen(tagpath, "r");
 
         if (in && tagin) {
           tagged_instance* ins = tagged_instance_alloc();
 
+          ins->source = strndup(name, dot - name);
           ins->feature = loader(in, load_param);
 
           if (ins->feature) {
@@ -283,6 +287,7 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
           else {
             fprintf(stderr, "Error: Failed to load data "
                 "from file: %s\n", filepath);
+            free(ins->source);
           }
 
           fclose(in);

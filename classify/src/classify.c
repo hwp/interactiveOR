@@ -106,6 +106,7 @@ void clfy_dataset_freeall(clfy_dataset* data,
   unsigned int i;
   for (i = 0; i < data->size; i++) {
     free_feature(data->instances[i].feature);
+    free(data->instances[i].source);
   }
   clfy_dataset_free(data);
 }
@@ -281,6 +282,8 @@ unsigned int clfy_load_dataset(clfy_dataset* data,
           ins.feature = loader(in, load_param);
           fclose(in);
 
+          ins.source = strndup(name, dot - name);
+
           if (ins.feature) {
             char class[256];
             strcpy(class, name);
@@ -300,6 +303,7 @@ unsigned int clfy_load_dataset(clfy_dataset* data,
           else {
             fprintf(stderr, "Error: Failed to load data "
                 "from file: %s\n", filepath);
+            free(ins.source);
           }
         }
         else {

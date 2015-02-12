@@ -15,6 +15,7 @@
 typedef struct {
   void* feature;
   unsigned int label;
+  char* source;
 } clfy_instance;
 
 /**

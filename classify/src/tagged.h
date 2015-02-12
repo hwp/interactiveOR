@@ -17,6 +17,7 @@ typedef struct {
   unsigned int ntags;
   unsigned int capacity;
   unsigned int* tags;
+  char* source;
 } tagged_instance;
 
 /**
