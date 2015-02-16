@@ -81,8 +81,7 @@ int main(int argc, char** argv) {
 
   unsigned int i;
   for(i = 0; i < meta->nclass; i++) {
-    tagged_cross_validate(data, i, SEQ_TAG_TRAIN, &train_param,
-        5, prob, gold);
+    tagged_object_cv(data, i, SEQ_TAG_TRAIN, &train_param, prob, gold);
 
     tagged_result result;
     tagged_performance(.5, data->size, prob, gold, &result);

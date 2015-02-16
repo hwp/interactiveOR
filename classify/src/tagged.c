@@ -45,6 +45,7 @@ void tagged_instance_free(tagged_instance* ins,
     }
     free(ins->tags);
     free(ins->source);
+    free(ins->obj_id);
     free(ins);
   }
 }
@@ -236,6 +237,57 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
   free(group);
 }
 
+void tagged_object_cv(tagged_dataset* data, unsigned int tag,
+    tagged_train_func method, void* train_param,
+    double* probability, unsigned int* gold_std) {
+  unsigned int i, j;
+  char** objects = malloc(data->size * sizeof(char*));
+  unsigned int n_obj = 0;
+
+  for (i = 0; i < data->size; i++) {
+    char* obj = data->instances[i]->obj_id;
+    for (j = 0; j < n_obj; j++) {
+      if (strcmp(obj, objects[j]) == 0) {
+        break;
+      }
+    }
+    if (j == n_obj) {
+      objects[n_obj] = obj;
+      n_obj++;
+    }
+  }
+
+  unsigned int res_offset = 0;
+  for (i = 0; i < n_obj; i++) {
+    tagged_dataset* train = tagged_dataset_alloc();
+    train->metadata = data->metadata;
+    tagged_dataset* test = tagged_dataset_alloc();
+    test->metadata = data->metadata;
+
+    for (j = 0; j < data->size; j++) {
+      if (strcmp(objects[i], data->instances[j]->obj_id) == 0) {
+        tagged_dataset_add(test, data->instances[j]);
+      }
+      else {
+        tagged_dataset_add(train, data->instances[j]);
+      }
+    }
+
+    fprintf(stderr, "CV Leave %s out: %u train, %u test\n",
+        objects[i], train->size, test->size);
+    tagged_model* model = method(train, tag, train_param);
+    tagged_evaluate(model, test, tag, probability + res_offset,
+        gold_std + res_offset);
+    res_offset += test->size;
+
+    model->free_self(model);
+    tagged_dataset_free(train);
+    tagged_dataset_free(test);
+  }
+
+  free(objects);
+}
+
 unsigned int tagged_load_dataset(tagged_dataset* data,
     const char* path, clfy_loader_func loader, void* load_param) {
   unsigned int n = 0;
@@ -263,6 +315,15 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
           tagged_instance* ins = tagged_instance_alloc();
 
           ins->source = strndup(name, dot - name);
+
+          char* dash = strchr(name, '_');
+          if (dash) {
+            ins->obj_id = strndup(name, dash - name);
+          }
+          else {
+            ins->obj_id = strdup(ins->source);
+          }
+
           ins->feature = loader(in, load_param);
 
           if (ins->feature) {
@@ -290,6 +351,7 @@ unsigned int tagged_load_dataset(tagged_dataset* data,
             fprintf(stderr, "Error: Failed to load data "
                 "from file: %s\n", filepath);
             free(ins->source);
+            free(ins->obj_id);
           }
 
           fclose(in);

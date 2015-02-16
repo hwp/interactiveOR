@@ -18,6 +18,7 @@ typedef struct {
   unsigned int capacity;
   unsigned int* tags;
   char* source;
+  char* obj_id;
 } tagged_instance;
 
 /**
@@ -171,6 +172,13 @@ double tagged_performance(double prob_threshold, unsigned int size,
  */
 void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param, unsigned int nfold,
+    double* probability, unsigned int* gold_std);
+
+/**
+ * Object-based leave-one-out cross validation.
+ */
+void tagged_object_cv(tagged_dataset* data, unsigned int tag,
+    tagged_train_func method, void* train_param,
     double* probability, unsigned int* gold_std);
 
 /**
