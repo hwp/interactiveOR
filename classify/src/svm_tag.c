@@ -8,6 +8,10 @@
 
 #include <assert.h>
 
+static void silent_print(const char* text) {
+  // empty
+}
+
 /**
  * the returned pointer should be freed after use.
  */
@@ -30,9 +34,13 @@ static struct svm_node* vector2node(gsl_vector* vector) {
 double svm_tag_prob(svm_tag_attr* attr, seq_t* seq) {
   assert(seq->size == 1);
   struct svm_node* node = vector2node(seq->data[0]);
-  double ret = svm_predict(attr->model, node);
+  svm_set_print_string_function(silent_print);
+  assert(svm_get_nr_class(attr->model) == 2);
+  assert(svm_check_probability_model(attr->model));
+  double p_est[2];
+  svm_predict_probability(attr->model, node, p_est);
   free(node);
-  return ret;
+  return p_est[1];
 }
 
 static void svm_tag_free(tagged_model* model) {
@@ -84,6 +92,12 @@ tagged_model* svm_tag_train(tagged_dataset* train_data, unsigned int tag,
     problem->x[i] = vector2node(s->data[0]);
   }
 
+  svm_set_print_string_function(silent_print);
+  const char* error = svm_check_parameter(problem, &svm_param);
+  if (error) {
+    fprintf(stderr, "%s\n", error);
+    assert(0);
+  }
   struct svm_model* model = svm_train(problem, &svm_param);
 
   svm_tag_attr* attr = malloc(sizeof(svm_tag_attr));
