@@ -6,6 +6,7 @@
 
 #include "svm_tag.h"
 
+#include <stdio.h>
 #include <assert.h>
 
 static void silent_print(const char* text) {
@@ -111,6 +112,13 @@ tagged_model* svm_tag_train(tagged_dataset* train_data, unsigned int tag,
   ret->free_self = (clfy_free_func) svm_tag_free;
   ret->fields = attr;
  
+  return ret;
+}
+
+char* svm_tag_description(svm_tag_param* param) {
+  char* ret = NULL;
+  asprintf(&ret, "SVM (rbf, c=%g, gamma=%g)",
+      param->cost, param->gamma);
   return ret;
 }
 

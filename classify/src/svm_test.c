@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
   train_param.cost = cost;
   train_param.gamma = gamma;
   train_param.cache_size = cache_size;
+  char* desc = svm_tag_description(&train_param);
 
   double* prob = malloc(data->size * sizeof(double));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
@@ -82,13 +83,10 @@ int main(int argc, char** argv) {
   unsigned int i;
   for(i = 0; i < meta->nclass; i++) {
     tagged_object_cv(data, i, SVM_TAG_TRAIN, &train_param, prob, gold);
-
-    tagged_result result;
-    tagged_performance(.5, data->size, prob, gold, &result);
-
-    tagged_result_fprintf(stdout, &result, meta->names[i]);
+    tagged_log(stdout, data, i, prob, gold, desc);
   }
 
+  free(desc);
   free(prob);
   free(gold);
   tagged_dataset_freeall(data, SEQ_FREE);

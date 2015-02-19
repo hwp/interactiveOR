@@ -182,6 +182,13 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     double* probability, unsigned int* gold_std);
 
 /**
+ * Print the log of the result.
+ */
+void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
+    double* probability, unsigned int* gold_std, 
+    const char* description);
+
+/**
  * Load data from files.
  * This function will search all files with extension 
  * ".fvec" in the given path and load the with the given

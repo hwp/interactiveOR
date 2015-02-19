@@ -18,7 +18,7 @@ include_directories(${GSL_INCLUDE_DIRS})
 find_package(LibSVM REQUIRED)
 include_directories(${LIBSVM_INCLUDE_DIRS})
 
-set(CMAKE_C_FLAGS "-Wall")
+set(CMAKE_C_FLAGS "-Wall -D_GNU_SOURCE")
 
 add_subdirectory(src)
 

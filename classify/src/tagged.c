@@ -148,8 +148,6 @@ void tagged_evaluate(tagged_model* model, tagged_dataset* data,
     tagged_instance* e = data->instances[i];
     probability[i] = model->tag_prob(model->fields, e->feature);
     gold_std[i] = tagged_instance_hastag(e, tag);
-
-    printf("%*s %*d %*.3f\n", 15, e->source, 5, gold_std[i], 8, probability[i]);
   }
 }
 
@@ -206,6 +204,10 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
   divide(data, tag, group, nfold);
 
   unsigned int i, j;
+  double* prob = malloc(data->size * sizeof(double));
+  unsigned int* gstd = malloc(data->size * sizeof(unsigned int));
+  unsigned int* perm = malloc(data->size * sizeof(unsigned int));
+  unsigned int pc = 0;
   unsigned int res_offset = 0;
   for (i = 0; i < nfold; i++) {
     tagged_dataset* train = tagged_dataset_alloc();
@@ -216,6 +218,8 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     for (j = 0; j < data->size; j++) {
       if (group[j] == i) {
         tagged_dataset_add(test, data->instances[j]);
+        perm[pc] = j;
+        pc++;
       }
       else {
         tagged_dataset_add(train, data->instances[j]);
@@ -225,8 +229,8 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     fprintf(stderr, "CV Partition %u: %u train, %u test\n",
         i, train->size, test->size);
     tagged_model* model = method(train, tag, train_param);
-    tagged_evaluate(model, test, tag, probability + res_offset,
-        gold_std + res_offset);
+    tagged_evaluate(model, test, tag, prob + res_offset,
+        gstd + res_offset);
     res_offset += test->size;
 
     model->free_self(model);
@@ -234,7 +238,16 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_dataset_free(test);
   }
 
+  assert(pc == data->size);
+  for (i = 0; i < data->size; i++) {
+    probability[perm[i]] = prob[i];
+    gold_std[perm[i]] = gstd[i];
+  }
+
   free(group);
+  free(prob);
+  free(gstd);
+  free(perm);
 }
 
 void tagged_object_cv(tagged_dataset* data, unsigned int tag,
@@ -257,6 +270,10 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     }
   }
 
+  double* prob = malloc(data->size * sizeof(double));
+  unsigned int* gstd = malloc(data->size * sizeof(unsigned int));
+  unsigned int* perm = malloc(data->size * sizeof(unsigned int));
+  unsigned int pc = 0;
   unsigned int res_offset = 0;
   for (i = 0; i < n_obj; i++) {
     tagged_dataset* train = tagged_dataset_alloc();
@@ -267,6 +284,8 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     for (j = 0; j < data->size; j++) {
       if (strcmp(objects[i], data->instances[j]->obj_id) == 0) {
         tagged_dataset_add(test, data->instances[j]);
+        perm[pc] = j;
+        pc++;
       }
       else {
         tagged_dataset_add(train, data->instances[j]);
@@ -276,8 +295,8 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     fprintf(stderr, "CV Leave %s out: %u train, %u test\n",
         objects[i], train->size, test->size);
     tagged_model* model = method(train, tag, train_param);
-    tagged_evaluate(model, test, tag, probability + res_offset,
-        gold_std + res_offset);
+    tagged_evaluate(model, test, tag, prob + res_offset,
+        gstd + res_offset);
     res_offset += test->size;
 
     model->free_self(model);
@@ -285,7 +304,30 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     tagged_dataset_free(test);
   }
 
+  assert(pc == data->size);
+  for (i = 0; i < data->size; i++) {
+    probability[perm[i]] = prob[i];
+    gold_std[perm[i]] = gstd[i];
+  }
+
   free(objects);
+  free(prob);
+  free(gstd);
+  free(perm);
+}
+
+void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
+    double* probability, unsigned int* gold_std, 
+    const char* description) {
+  fprintf(stream, "## start ##\n");
+  fprintf(stream, "## description: %s ##\n", description);
+  fprintf(stream, "## tag: %s ##\n", data->metadata->names[tag]);
+  unsigned int i;
+  for (i = 0; i < data->size; i++) {
+    fprintf(stream, "%*s %*.2f %*d\n", 15, data->instances[i]->source,
+        5, probability[i], 5, gold_std[i]);
+  }
+  fprintf(stream, "## end ##\n");
 }
 
 unsigned int tagged_load_dataset(tagged_dataset* data,
