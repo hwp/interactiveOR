@@ -116,3 +116,14 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
   return res;
 }
 
+char* seq_tag_description(seq_hmm_train_param* param) {
+  char* ret = NULL;
+  if (param->cov_diag) {
+    asprintf(&ret, "HMM-GMM (n=%d, k=%d, diagonal)", param->n, param->k);
+  }
+  else {
+    asprintf(&ret, "HMM-GMM (n=%d, k=%d)", param->n, param->k);
+  }
+  return ret;
+}
+

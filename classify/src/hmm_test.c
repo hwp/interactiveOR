@@ -1,4 +1,4 @@
-// tag_test.c
+// hmm_test.c
 // Test the functions of sequence_tag.h
 //
 // Author : Weipeng He <heweipeng@gmail.com>
@@ -75,6 +75,7 @@ int main(int argc, char** argv) {
   train_param.dim = param.dim;
   train_param.rng = rng;
   train_param.cov_diag = cov_diag;
+  char* desc = seq_tag_description(&train_param);
 
   double* prob = malloc(data->size * sizeof(double));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
@@ -82,13 +83,10 @@ int main(int argc, char** argv) {
   unsigned int i;
   for(i = 0; i < meta->nclass; i++) {
     tagged_object_cv(data, i, SEQ_TAG_TRAIN, &train_param, prob, gold);
-
-    tagged_result result;
-    tagged_performance(.5, data->size, prob, gold, &result);
-
-    tagged_result_fprintf(stdout, &result, meta->names[i]);
+    tagged_log(stdout, data, i, prob, gold, desc);
   }
 
+  free(desc);
   free(prob);
   free(gold);
   tagged_dataset_freeall(data, SEQ_FREE);
