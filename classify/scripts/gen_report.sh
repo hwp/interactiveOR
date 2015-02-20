@@ -1,5 +1,13 @@
 #!/bin/bash
 
+src="${BASH_SOURCE[0]}"
+while [ -h "$src" ]; do
+  dir="$( cd -P "$( dirname "$src" )" && pwd )"
+  src="$(readlink "$src")"
+  [[ $src != /* ]] && src="$dir/$src"
+done
+basedir="$( cd -P "$( dirname "$src" )" && pwd )"
+
 dataf=`mktemp` || exit 1
 evalf=`mktemp` || exit 1
 plotf=`mktemp` || exit 1
@@ -24,10 +32,11 @@ while true; do
     read -r line || exit 1
   done
 
-  ./evalres.m $dataf > $evalf
+  $basedir/evalres.m $dataf > $evalf
   auc=`tail -1 $evalf`
   head -n -1 $evalf > $dataf
   mv $dataf $evalf
+  echo "reset" >> $plotf
   echo "set multiplot layout 1,2 title '$desc - $tag'" >> $plotf
   echo "set title 'scores'" >> $plotf
   echo "set xlabel 'threshold '" >> $plotf
