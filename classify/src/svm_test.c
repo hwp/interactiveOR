@@ -24,9 +24,10 @@ int main(int argc, char** argv) {
   double cost = 1.0;
   double gamma = 0.0;
   double cache_size = 100.0;
+  int unknown = 1;
 
   int opt;
-  while ((opt = getopt(argc, argv, "d:c:g:m:h")) != -1) {
+  while ((opt = getopt(argc, argv, "d:c:g:m:u:h")) != -1) {
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -43,6 +44,9 @@ int main(int argc, char** argv) {
       case 'm':
         cache_size = atof(optarg);
         break;
+      case 'u':
+        unknown = atoi(optarg);
+        break;
       default:
         showhelp = 1;
         break;
@@ -56,7 +60,7 @@ int main(int argc, char** argv) {
   if (showhelp || dim <= 0 || cost <= 0.0 || gamma <= 0.0 
       || argc - optind < 1) {
     fprintf(stderr, "Usage: %s -d dimension -c cost -g gamma "
-        "[-m cache_size] data_dir\n", argv[0]);
+        "[-m cache_size] [-u unknown] data_dir\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
 
@@ -75,17 +79,32 @@ int main(int argc, char** argv) {
   train_param.cost = cost;
   train_param.gamma = gamma;
   train_param.cache_size = cache_size;
-  char* desc = svm_tag_description(&train_param);
+  char* method_desc = svm_tag_description(&train_param);
+  char* desc = NULL;
+  if (unknown) {
+    asprintf(&desc, "%s - unknown cv", method_desc);
+  }
+  else {
+    asprintf(&desc, "%s - known cv", method_desc);
+  }
 
   double* prob = malloc(data->size * sizeof(double));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
 
   unsigned int i;
   for(i = 0; i < meta->nclass; i++) {
-    tagged_object_cv(data, i, SVM_TAG_TRAIN, &train_param, prob, gold);
+    if (unknown) {
+      tagged_object_cv(data, i, SVM_TAG_TRAIN, &train_param,
+          prob, gold);
+    }
+    else {
+      tagged_cross_validate(data, i, SVM_TAG_TRAIN, &train_param,
+          5, prob, gold);
+    }
     tagged_log(stdout, data, i, prob, gold, desc);
   }
 
+  free(method_desc);
   free(desc);
   free(prob);
   free(gold);
