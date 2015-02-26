@@ -102,6 +102,7 @@ int main(int argc, char** argv) {
           5, prob, gold);
     }
     tagged_log(stdout, data, i, prob, gold, desc);
+    fflush(stdout);
   }
 
   free(method_desc);
