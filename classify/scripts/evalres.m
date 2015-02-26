@@ -3,15 +3,20 @@
 arg_list = argv();
 
 [name, posterior, class] = textread(arg_list{1}, '%s %f %f');
-thresholds = unique(sort([0; .5; 1; posterior]));
+thresholds = [unique(sort([[0:.1:1]'; posterior])); 1];
 total = length(class);
 p = sum(class == 1);
 n = sum(class == 0);
 tp = zeros(length(thresholds), 1);
 fp = zeros(length(thresholds), 1);
 for i = 1 : length(thresholds)
+  if i < length(thresholds)
     tp(i) = sum((class == 1) & (posterior >= thresholds(i)));
     fp(i) = sum((class == 0) & (posterior >= thresholds(i)));
+  else
+    tp(i) = 0;
+    fp(i) = 0;
+  endif
 endfor
 
 tpr = tp / p;
@@ -26,7 +31,7 @@ kappa = (pa - pe) ./ (1 - pe);
 
 auc = 0;
 for i = 2 : length(thresholds)
-  auc += tpr(i) * (fpr(i - 1) - fpr(i));
+  auc += (tpr(i) + tpr(i - 1)) * (fpr(i - 1) - fpr(i)) / 2.0;
 endfor
 
 fdisp(stdout, [thresholds, tpr, fpr, prec, fmea, kappa]);
