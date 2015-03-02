@@ -56,20 +56,22 @@ for file in $files; do
       head -n -1 $evalf > $dataf
       mv $dataf $evalf
       echo "reset" >> $plotf
-      echo "set termoption dash" >> $plotf
       echo "set multiplot layout 1,2 title '$desc - $tag'" >> $plotf
       echo "set title 'scores'" >> $plotf
       echo "set xlabel 'threshold '" >> $plotf
-      echo "plot '$evalf' using 1:2 title 'recall' w l lt 1 lc 1,\\" >> $plotf
-      echo "     '$evalf' using 1:4 title 'precision' w l lt 1 lc 2,\\" >> $plotf
-      echo "     '$evalf' using 1:5 title 'f-measure' w l lt 1 lc 3,\\" >> $plotf
-      echo "     '$evalf' using 1:6 title 'kappa' w l lt 1 lc 4" >> $plotf
+      echo "set ylabel 'score'" >> $plotf
+      echo "set size square" >> $plotf
+      echo "plot '$evalf' using 1:2 title 'recall' w l,\\" >> $plotf
+      echo "     '$evalf' using 1:4 title 'precision' w l,\\" >> $plotf
+      echo "     '$evalf' using 1:5 title 'f-measure' w l,\\" >> $plotf
+      echo "     '$evalf' using 1:6 title 'kappa' w l" >> $plotf
       echo "set title 'roc curve (auc = $auc)'" >> $plotf
       echo "set xlabel 'fpr'" >> $plotf
       echo "set ylabel 'tpr'" >> $plotf
+      echo "set size square" >> $plotf
       echo "unset key" >> $plotf
       echo "plot '$evalf' using 3:2 w l,\\" >> $plotf
-      echo "     x lt 2" >> $plotf
+      echo "     x dt 3" >> $plotf
       echo "unset multiplot" >> $plotf
 
       if [[ -n $plot ]]; then
