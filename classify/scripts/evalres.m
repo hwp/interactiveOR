@@ -34,6 +34,6 @@ for i = 2 : length(thresholds)
   auc += (tpr(i) + tpr(i - 1)) * (fpr(i - 1) - fpr(i)) / 2.0;
 endfor
 
-fdisp(stdout, [thresholds, tpr, fpr, prec, fmea, kappa]);
-fdisp(stdout, auc);
+disp([thresholds, tpr, fpr, prec, fmea, kappa]);
+printf('%.3f\n', auc);
 

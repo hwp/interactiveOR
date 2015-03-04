@@ -47,6 +47,8 @@ done
 basedir="$( cd -P "$( dirname "$src" )" && pwd )"
 
 declare -A datas
+declare -A aucs
+
 tempf=`mktemp` || exit 1
 for file in $files; do
   dataf=`mktemp` || exit 1
@@ -69,7 +71,10 @@ for file in $files; do
       done
 
       if [[ $tag == $category ]]; then
-        $basedir/evalres.m $tempf | head -n -1 > $dataf
+        $basedir/evalres.m $tempf > $dataf
+        aucs[$file]=`tail -1 $dataf`
+        head -n -1 $dataf > $tempf
+        mv $tempf $dataf
       fi
     fi
   done < $file
@@ -97,7 +102,7 @@ echo "set ylabel 'true positive rate'" >> $plotf
 echo "set size square" >> $plotf
 echo -n "plot x dt 3 notitle" >> $plotf
 for file in $files; do
-  echo -n ", '${datas[$file]}' using 3:2 w l title '${file//_/ }'" >> $plotf
+  echo -n ", '${datas[$file]}' using 3:2 w l title '${file//_/ } (${aucs[$file]})'" >> $plotf
 done
 echo >> $plotf
 gnuplot $fp $plotf
