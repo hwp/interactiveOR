@@ -1,13 +1,15 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 -f frame_rate -v vocabulary_file -o outdir files" >&2
+  echo "Usage: $0 -f frame_rate -v vocabulary_file -s nstop -m mscale -o outdir files" >&2
   exit 1
 }
 
 cmd="$0 $@"
+nstop=0
+mscale=0
 
-while getopts "f:v:o:" opt; do
+while getopts "f:v:o:s:m:" opt; do
   case $opt in
     f)
       frate=$OPTARG
@@ -17,6 +19,12 @@ while getopts "f:v:o:" opt; do
       ;;
     o)
       outdir=$OPTARG
+      ;;
+    s)
+      nstop=$OPTARG
+      ;;
+    m)
+      mscale=$OPTARG
       ;;
     *)
       usage
@@ -47,7 +55,7 @@ echo "# $cmd" >> "${outdir}/README"
 echo "Feature: BoW-SIFT" >> "${outdir}/README"
 echo -n "Date: " >> "${outdir}/README"
 date >> "${outdir}/README"
-echo "Dimension: $vocsize" >> "${outdir}/README"
+echo "Dimension: $((vocsize-nstop))" >> "${outdir}/README"
 echo "Vocabulary: $vocfl" >> "${outdir}/README"
 echo "Format: double" >> "${outdir}/README"
 echo "Frame Rate: $frate" >> "${outdir}/README"
@@ -64,7 +72,7 @@ for file in $files; do
   echo "$dest < $file" >> "${outdir}/SOURCES"
   gst-launch-1.0 -q filesrc location="$file" ! avidemux name=demux \
     demux.video_0 ! decodebin ! videorate ! video/x-raw,framerate=$frate ! videoconvert \
-    ! bow vocabulary="$vocfl" location="$outdir/$dest" ! fakesink \
+    ! bow vocabulary="$vocfl" nstop=$nstop mscale=$mscale location="$outdir/$dest" ! fakesink \
     || exit 1
   id=$((id + 1))
 done
