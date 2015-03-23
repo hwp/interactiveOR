@@ -61,7 +61,7 @@ do
         fi
       done
       ;;
-    plasitc)
+    plastic)
       for f in 16*.fvec 17*.fvec 24*.fvec 29*.fvec 31*.fvec 33*.fvec 34*.fvec 35*.fvec
       do 
         if [[ -f $f ]]; then
