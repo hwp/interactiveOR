@@ -23,12 +23,18 @@ ddir=$1
 
 dim=`grep Dimension $ddir/README | awk '{print $2}'`
 name=`echo $ddir | sed 's:^.*/\([^/][^/]*\)/*$:\1:'` 
+
 echo $name
 
 > errlog
+echo "run hmm n1 k1"
 $prog -d $dim -n 1 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k1
+echo "run hmm n1 k3"
 $prog -d $dim -n 1 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k3
+echo "run hmm n3 k1"
 $prog -d $dim -n 3 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k1
+echo "run hmm n3 k3"
 $prog -d $dim -n 3 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k3
+echo "run hmm n3 k6"
 $prog -d $dim -n 3 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k6
 
