@@ -26,9 +26,9 @@ name=`echo $ddir | sed 's:^.*/\([^/][^/]*\)/*$:\1:'`
 echo $name
 
 > errlog
-$prog -d $dim -d -n 1 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k1
-$prog -d $dim -d -n 1 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k3
-$prog -d $dim -d -n 3 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k1
-$prog -d $dim -d -n 3 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k3
-$prog -d $dim -d -n 3 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k6
+$prog -d $dim -n 1 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k1
+$prog -d $dim -n 1 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k3
+$prog -d $dim -n 3 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k1
+$prog -d $dim -n 3 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k3
+$prog -d $dim -n 3 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k6
 
