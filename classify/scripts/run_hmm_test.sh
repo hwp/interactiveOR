@@ -31,6 +31,8 @@ echo "run hmm n1 k1"
 $prog -d $dim -n 1 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k1
 echo "run hmm n1 k3"
 $prog -d $dim -n 1 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k3
+echo "run hmm n1 k9"
+$prog -d $dim -n 1 -k 9 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k9
 echo "run hmm n3 k1"
 $prog -d $dim -n 3 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k1
 echo "run hmm n3 k3"
