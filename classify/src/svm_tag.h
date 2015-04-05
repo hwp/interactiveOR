@@ -29,7 +29,7 @@ typedef struct {
 /**
  * assume seq is of size 1.
  */
-double svm_tag_prob(svm_tag_attr* attr, seq_t* seq);
+tagged_probability svm_tag_prob(svm_tag_attr* attr, seq_t* seq);
 
 tagged_model* svm_tag_train(tagged_dataset* train_data, unsigned int tag,
     svm_tag_param* param);

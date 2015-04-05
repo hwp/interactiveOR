@@ -11,29 +11,32 @@
 
 #include <notghmm/notghmm.h>
 
-double seq_tag_prob(seq_hmm_attr* attr, seq_t* seq) {
+tagged_probability seq_tag_prob(seq_hmm_attr* attr, seq_t* seq) {
   assert(attr->nclass == 2);
+
+  tagged_probability ret;
 
   size_t n = attr->models[0]->n;
   gsl_matrix* logalpha = gsl_matrix_alloc(seq->size, n);
 
   forward_proc_log(attr->models[0], seq, logalpha);
-  double pos = hmm_log_likelihood(logalpha);
+  ret.like_p = hmm_log_likelihood(logalpha);
 
   forward_proc_log(attr->models[1], seq, logalpha);
-  double neg = hmm_log_likelihood(logalpha);
+  ret.like_n = hmm_log_likelihood(logalpha);
 
   gsl_matrix_free(logalpha);
   
-  double diff = (neg - pos) / (double) seq->size;
+  double diff = (ret.like_n - ret.like_p) / (double) seq->size;
   if (isnormal(diff)) {
-    return 1.0 / (1.0 + exp(diff));
+    ret.posterior = 1.0 / (1.0 + exp(diff));
   }
   else { 
     fprintf(stderr, "Warning: neg - pos is nan, neg = %g, pos = %g\n",
-        neg, pos);
-    return 0.0;
+        ret.like_n, ret.like_p);
+    ret.posterior = 0.0;
   }
+  return ret;
 }
 
 void seq_tag_free(tagged_model* model) {

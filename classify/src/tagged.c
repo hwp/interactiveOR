@@ -120,7 +120,7 @@ void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins) {
   data->size++;
 }
 
-void tagged_result_fprintf(FILE* stream, tagged_result* result,
+void tagged_result_fprintf(FILE* stream, tagged_evalution* result,
     const char* name) {
   int name_width = 8;
   int number_width = 8;
@@ -142,7 +142,7 @@ void tagged_result_fprintf(FILE* stream, tagged_result* result,
 }
 
 void tagged_evaluate(tagged_model* model, tagged_dataset* data,
-    unsigned int tag, double* probability, unsigned int* gold_std) {
+    unsigned int tag, tagged_probability* probability, unsigned int* gold_std) {
   unsigned int i;
   for (i = 0; i < data->size; i++) {
     tagged_instance* e = data->instances[i];
@@ -152,7 +152,7 @@ void tagged_evaluate(tagged_model* model, tagged_dataset* data,
 }
 
 double tagged_performance(double prob_threshold, unsigned int size,
-    double* probability, unsigned int* gold_std, tagged_result* result) {
+    tagged_probability* probability, unsigned int* gold_std, tagged_evalution* result) {
   unsigned int i;
 
   result->tp = 0;
@@ -161,7 +161,7 @@ double tagged_performance(double prob_threshold, unsigned int size,
   result->total = size;
 
   for (i = 0; i < size; i++) {
-    if (probability[i] >= prob_threshold) {
+    if (probability[i].posterior >= prob_threshold) {
       if (gold_std[i]) {
         result->tp++;
       }
@@ -199,12 +199,12 @@ static void divide(tagged_dataset* data, unsigned int tag,
 
 void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param, unsigned int nfold,
-    double* probability, unsigned int* gold_std) {
+    tagged_probability* probability, unsigned int* gold_std) {
   unsigned int* group = malloc(data->size * sizeof(unsigned int));
   divide(data, tag, group, nfold);
 
   unsigned int i, j;
-  double* prob = malloc(data->size * sizeof(double));
+  tagged_probability* prob = malloc(data->size * sizeof(tagged_probability));
   unsigned int* gstd = malloc(data->size * sizeof(unsigned int));
   unsigned int* perm = malloc(data->size * sizeof(unsigned int));
   unsigned int pc = 0;
@@ -252,7 +252,7 @@ void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
 
 void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param,
-    double* probability, unsigned int* gold_std) {
+    tagged_probability* probability, unsigned int* gold_std) {
   unsigned int i, j;
   char** objects = malloc(data->size * sizeof(char*));
   unsigned int n_obj = 0;
@@ -270,7 +270,7 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     }
   }
 
-  double* prob = malloc(data->size * sizeof(double));
+  tagged_probability* prob = malloc(data->size * sizeof(tagged_probability));
   unsigned int* gstd = malloc(data->size * sizeof(unsigned int));
   unsigned int* perm = malloc(data->size * sizeof(unsigned int));
   unsigned int pc = 0;
@@ -317,7 +317,7 @@ void tagged_object_cv(tagged_dataset* data, unsigned int tag,
 }
 
 void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
-    double* probability, unsigned int* gold_std, 
+    tagged_probability* probability, unsigned int* gold_std, 
     const char* description) {
   fprintf(stream, "## start ##\n");
   fprintf(stream, "## description: %s ##\n", description);
@@ -325,7 +325,7 @@ void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
   unsigned int i;
   for (i = 0; i < data->size; i++) {
     fprintf(stream, "%*s %*.2f %*d\n", 15, data->instances[i]->source,
-        5, probability[i], 5, gold_std[i]);
+        5, probability[i].posterior, 5, gold_std[i]);
   }
   fprintf(stream, "## end ##\n");
 }

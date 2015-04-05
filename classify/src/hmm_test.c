@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
     asprintf(&desc, "%s - known cv", method_desc);
   }
 
-  double* prob = malloc(data->size * sizeof(double));
+  tagged_probability* prob = malloc(data->size * sizeof(tagged_probability));
   unsigned int* gold = malloc(data->size * sizeof(unsigned int));
 
   unsigned int i;

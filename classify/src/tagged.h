@@ -32,10 +32,30 @@ typedef struct {
 } tagged_dataset;
 
 /**
+ * Probabilities
+ */
+typedef struct {
+  /**
+   * log positive likelihood
+   */
+  double like_p;
+
+  /**
+   * log negative likelihood
+   */
+  double like_n;
+
+  /**
+   * Posterior probability of positive
+   */
+  double posterior;
+} tagged_probability;
+
+/**
  * Tag probability function.
  * 
  */
-typedef double (*tagged_tagprob_func)(void* fields, void* feature);
+typedef tagged_probability (*tagged_tagprob_func)(void* fields, void* feature);
 
 /**
  * A tag model.
@@ -53,7 +73,7 @@ typedef tagged_model* (*tagged_train_func) (tagged_dataset* train_data,
     unsigned int tag, void* param);
 
 /**
- * Tagged performance result.
+ * Tagged performance evaluation.
  */
 typedef struct {
   /**
@@ -75,7 +95,7 @@ typedef struct {
    * False Negative.
    */
   unsigned int fn;
-} tagged_result;
+} tagged_evalution;
 
 #define TAGGED_PRECISION(r) \
   ((double) (r).tp / (double) ((r).tp + (r).fp)) 
@@ -147,7 +167,7 @@ void tagged_dataset_add(tagged_dataset* data, tagged_instance* ins);
 /**
  * Print tagged result.
  */ 
-void tagged_result_fprintf(FILE* stream, tagged_result* result,
+void tagged_evalution_fprintf(FILE* stream, tagged_evalution* result,
     const char* name);
 
 /**
@@ -155,7 +175,7 @@ void tagged_result_fprintf(FILE* stream, tagged_result* result,
  * probability and gold_std should be size of data->size.
  */
 void tagged_evaluate(tagged_model* model, tagged_dataset* data,
-    unsigned int tag, double* probability, unsigned int* gold_std);
+    unsigned int tag, tagged_probability* probability, unsigned int* gold_std);
 
 /**
  * Calculate the binary classification result according to a probablity
@@ -164,7 +184,7 @@ void tagged_evaluate(tagged_model* model, tagged_dataset* data,
  * @return F1 Measure.
  */
 double tagged_performance(double prob_threshold, unsigned int size,
-    double* probability, unsigned int* gold_std, tagged_result* result);
+    tagged_probability* probability, unsigned int* gold_std, tagged_evalution* result);
 
 /**
  * Calculate the probabilities using the given data with 
@@ -172,20 +192,20 @@ double tagged_performance(double prob_threshold, unsigned int size,
  */
 void tagged_cross_validate(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param, unsigned int nfold,
-    double* probability, unsigned int* gold_std);
+    tagged_probability* probability, unsigned int* gold_std);
 
 /**
  * Object-based leave-one-out cross validation.
  */
 void tagged_object_cv(tagged_dataset* data, unsigned int tag,
     tagged_train_func method, void* train_param,
-    double* probability, unsigned int* gold_std);
+    tagged_probability* probability, unsigned int* gold_std);
 
 /**
  * Print the log of the result.
  */
 void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
-    double* probability, unsigned int* gold_std, 
+    tagged_probability* probability, unsigned int* gold_std, 
     const char* description);
 
 /**

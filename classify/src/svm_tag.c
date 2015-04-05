@@ -9,6 +9,12 @@
 #include <stdio.h>
 #include <assert.h>
 
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+
+#include <math.h>
+
 static void silent_print(const char* text) {
   // empty
 }
@@ -32,7 +38,7 @@ static struct svm_node* vector2node(gsl_vector* vector) {
   return ret;
 }
 
-double svm_tag_prob(svm_tag_attr* attr, seq_t* seq) {
+tagged_probability svm_tag_prob(svm_tag_attr* attr, seq_t* seq) {
   assert(seq->size == 1);
   struct svm_node* node = vector2node(seq->data[0]);
   svm_set_print_string_function(silent_print);
@@ -41,7 +47,13 @@ double svm_tag_prob(svm_tag_attr* attr, seq_t* seq) {
   double p_est[2];
   svm_predict_probability(attr->model, node, p_est);
   free(node);
-  return p_est[1];
+  
+  tagged_probability ret;
+  ret.like_p = NAN;
+  ret.like_n = NAN;
+  ret.posterior = p_est[1];
+
+  return ret;;
 }
 
 static void svm_tag_free(tagged_model* model) {

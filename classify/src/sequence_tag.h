@@ -12,7 +12,7 @@
 
 #define SEQ_TAG_TRAIN ((tagged_train_func) seq_tag_train)
 
-double seq_tag_prob(seq_hmm_attr* attr, seq_t* seq);
+tagged_probability seq_tag_prob(seq_hmm_attr* attr, seq_t* seq);
 
 /**
  * @warning returned pointer should be freed after use.
