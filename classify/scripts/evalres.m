@@ -2,7 +2,7 @@
 
 arg_list = argv();
 
-[name, posterior, class] = textread(arg_list{1}, '%s %f %f');
+[name, posterior, class, z1, z2] = textread(arg_list{1}, '%s %f %f %f %f');
 thresholds = [unique(sort([[0:.1:1]'; posterior])); 1];
 total = length(class);
 p = sum(class == 1);

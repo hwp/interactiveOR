@@ -324,8 +324,8 @@ void tagged_log(FILE* stream, tagged_dataset* data, unsigned int tag,
   fprintf(stream, "## tag: %s ##\n", data->metadata->names[tag]);
   unsigned int i;
   for (i = 0; i < data->size; i++) {
-    fprintf(stream, "%*s %*.2f %*d\n", 15, data->instances[i]->source,
-        5, probability[i].posterior, 5, gold_std[i]);
+    fprintf(stream, "%*s %*.2f %*d %*.4g %*.4g\n", 15, data->instances[i]->source,
+        5, probability[i].posterior, 5, gold_std[i], 8, probability[i].like_p, 8, probability[i].like_n);
   }
   fprintf(stream, "## end ##\n");
 }
