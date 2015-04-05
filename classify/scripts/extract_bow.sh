@@ -1,7 +1,7 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 -f frame_rate -v vocabulary_file -s nstop -m mscale -o outdir files" >&2
+  echo "Usage: $0 -f frame_rate -v vocabulary_file -t nstop -m mscale -o outdir files" >&2
   exit 1
 }
 
@@ -9,7 +9,7 @@ cmd="$0 $@"
 nstop=0
 mscale=0
 
-while getopts "f:v:o:s:m:" opt; do
+while getopts "f:v:t:m:o:" opt; do
   case $opt in
     f)
       frate=$OPTARG
@@ -20,7 +20,7 @@ while getopts "f:v:o:s:m:" opt; do
     o)
       outdir=$OPTARG
       ;;
-    s)
+    t)
       nstop=$OPTARG
       ;;
     m)
@@ -35,8 +35,13 @@ shift $((OPTIND-1))
 
 files=$@
 
+nure='^[0-9]+$'
 frre='^[0-9]+/[0-9]+$'
-[[ $frate =~ $frre ]] && [[ -n $files ]] && [[ -n $outdir ]] || usage
+
+[[ $frate =~ $frre ]] && [[ $nstop =~ $nure ]] \
+  && [[ $mscale =~ $flre ]] || usage
+
+[[ -n $files ]] && [[ -n $outdir ]] || usage
 
 if [[ -d $outdir ]]; then
   echo "Error: directory $outdir exists" >&2
@@ -55,10 +60,12 @@ echo "# $cmd" >> "${outdir}/README"
 echo "Feature: BoW-SIFT" >> "${outdir}/README"
 echo -n "Date: " >> "${outdir}/README"
 date >> "${outdir}/README"
-echo "Dimension: $((vocsize-nstop))" >> "${outdir}/README"
-echo "Vocabulary: $vocfl" >> "${outdir}/README"
-echo "Format: double" >> "${outdir}/README"
+echo "Dimension: $((vocsize - nstop))" >> "${outdir}/README"
 echo "Frame Rate: $frate" >> "${outdir}/README"
+echo "Vocabulary: $vocfl" >> "${outdir}/README"
+echo "Number of Stop Words: $nstop" >> "${outdir}/README"
+echo "Minimun Scale: $mscale" >> "${outdir}/README"
+echo "Format: double" >> "${outdir}/README"
 
 echo "# this file records the raw media file of the feature data" > "${outdir}/SOURCES"
 
