@@ -123,7 +123,7 @@ for file in $files; do
     ! bow vocabulary="$vocfl" nstop=$nstop mscale=$mscale location="$video_pipe" ! fakesink \
     demux.audio_0 ! queue ! decodebin ! audioresample ! audio/x-raw,rate=$rate ! audioconvert \
     ! mfcc wsize=$wsize ssize=$ssize banks=$nbanks cbegin=1 csize=$csize location="$audio_pipe" ! fakesink & \
-    gval_merge $video_pipe $vocsize $audio_pipe $csize "$outdir/$dest" \
+    gval_merge $video_pipe $((vocsize - nstop)) $audio_pipe $csize "$outdir/$dest" \
     || exit 1
   id=$((id + 1))
 done
