@@ -1,14 +1,18 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 -p hmm_test_path data_dir" >&2
+  echo "Usage: $0 [-u unseen] -p hmm_test_path data_dir" >&2
   exit 1
 }
 
-while getopts "p:" opt; do
+unseen=1
+while getopts "p:u:" opt; do
   case $opt in
     p)
       prog=$OPTARG
+      ;;
+    u)
+      unseen=$OPTARG
       ;;
     *)
       usage
@@ -33,22 +37,22 @@ for ddir in $ddirs; do
 
   > errlog
   echo "run hmm n1 k1"
-  $prog -d $dim -n 1 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k1
+  $prog -d $dim -n 1 -k 1 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n1k1
   echo "run hmm n1 k3"
-  $prog -d $dim -n 1 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k3
+  $prog -d $dim -n 1 -k 3 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n1k3
   echo "run hmm n1 k6"
-  $prog -d $dim -n 1 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n1k6
+  $prog -d $dim -n 1 -k 6 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n1k6
   echo "run hmm n2 k1"
-  $prog -d $dim -n 2 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n2k1
+  $prog -d $dim -n 2 -k 1 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n2k1
   echo "run hmm n2 k3"
-  $prog -d $dim -n 2 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n2k3
+  $prog -d $dim -n 2 -k 3 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n2k3
   echo "run hmm n2 k6"
-  $prog -d $dim -n 2 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n2k6
+  $prog -d $dim -n 2 -k 6 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n2k6
   echo "run hmm n3 k1"
-  $prog -d $dim -n 3 -k 1 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k1
+  $prog -d $dim -n 3 -k 1 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n3k1
   echo "run hmm n3 k3"
-  $prog -d $dim -n 3 -k 3 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k3
+  $prog -d $dim -n 3 -k 3 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n3k3
   echo "run hmm n3 k6"
-  $prog -d $dim -n 3 -k 6 -c 1 $ddir 2>> errlog > ${name}_hmm_n3k6
+  $prog -d $dim -n 3 -k 6 -c 1 -u $unseen $ddir 2>> errlog > ${name}_hmm_n3k6
 done
 
