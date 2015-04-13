@@ -56,7 +56,8 @@ def main():
       assert en1[key][0] == en2[key][0]
       pl = en1[key][1] + en2[key][1]
       nl = en1[key][2] + en2[key][2]
-      df = min(max(nl - pl, -100), 100)
+      df = (nl - pl) / 20.0
+      df = min(max(df, -100.0), 100.0)
       pp = 1.0 / (1.0 + exp(df))
       print "%15s %5.2f %5d %8.4g %8.4g" % (key, pp, en1[key][0], pl, nl)
     print '## end ##'

@@ -245,6 +245,9 @@ double clfy_cross_validate(clfy_dataset* data,
       }
     }
 
+    assert(train->size > 0);
+    assert(test->size > 0);
+
     fprintf(stderr, "CV Partition %u: %u train, %u test\n",
         i, train->size, test->size);
     double precision = clfy_performance(train, test,
