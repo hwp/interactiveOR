@@ -23,10 +23,12 @@ int main(int argc, char** argv) {
   unsigned int n_states = 0;
   unsigned int n_comp = 0;
   int cov_diag = 0;
+  seq_init_t init_type = SEQ_INIT_RANDOM;
   int unknown = 1;
 
   int opt;
-  while ((opt = getopt(argc, argv, "d:n:k:c:u:h")) != -1) {
+  while ((opt = getopt(argc, argv, "d:n:k:c:i:u:h")) != -1) {
+    int a;
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -43,6 +45,12 @@ int main(int argc, char** argv) {
       case 'c':
         cov_diag = atoi(optarg);
         break;
+      case 'i':
+        a = atoi(optarg);
+        if (a) {
+          init_type = SEQ_INIT_KMEANS;
+        }
+        break;
       case 'u':
         unknown = atoi(optarg);
         break;
@@ -54,7 +62,7 @@ int main(int argc, char** argv) {
 
   if (showhelp || dim <= 0 || n_states <= 0 
       || n_comp <= 0 || argc - optind < 1) {
-    fprintf(stderr, "Usage: %s -d dimension -n num_states "
+    fprintf(stderr, "Usage: %s -d dimension [-i (0:random|1:kmeans)] -n num_states "
         "-k num_components [-c cov_diag] [-u unknown] data_dir\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
@@ -79,6 +87,8 @@ int main(int argc, char** argv) {
   train_param.dim = param.dim;
   train_param.rng = rng;
   train_param.cov_diag = cov_diag;
+  train_param.init_type = init_type;
+
   char* method_desc = seq_tag_description(&train_param);
   char* desc = NULL;
   if (unknown) {

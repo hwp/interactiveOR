@@ -96,8 +96,20 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
   attr->models[0] = model; 
 
   fprintf(stderr, "Training positive model with %u instances\n", cp);
-  fprintf(stderr, "Initiating model...\n");
-  random_init(model, seqs, cp, param->rng);
+  fprintf(stderr, "Initiating model ");
+  switch (param->init_type) {
+    case SEQ_INIT_RANDOM:
+      fprintf(stderr, "randomly...\n");
+      random_init(model, seqs, cp, param->rng);
+      break;
+    case SEQ_INIT_KMEANS:
+      fprintf(stderr, "with k-means...\n");
+      kmeans_init(model, seqs, cp, param->rng);
+      break;
+    default:
+      assert(0);
+      break;
+  }
   fprintf(stderr, "Initiating model DONE.\n");
   fprintf(stderr, "Reestimating model...\n");
   baum_welch(model, seqs, cp);
@@ -108,25 +120,37 @@ tagged_model* seq_tag_train(tagged_dataset* train_data,
   attr->models[1] = model; 
 
   fprintf(stderr, "Training negative model with %u instances\n", cn);
-  fprintf(stderr, "Initiating model...\n");
-  random_init(model, seqs + cp, cn, param->rng);
+  fprintf(stderr, "Initiating model ");
+  switch (param->init_type) {
+    case SEQ_INIT_RANDOM:
+      fprintf(stderr, "randomly...\n");
+      random_init(model, seqs + cp, cn, param->rng);
+      break;
+    case SEQ_INIT_KMEANS:
+      fprintf(stderr, "with k-means...\n");
+      kmeans_init(model, seqs + cp, cn, param->rng);
+      break;
+    default:
+      assert(0);
+      break;
+  }
   fprintf(stderr, "Initiating model DONE.\n");
   fprintf(stderr, "Reestimating model...\n");
   baum_welch(model, seqs + cp, cn);
-  fprintf(stderr, "Restimating model DONE.\n");
+  fprintf(stderr, "Reestimating model DONE.\n");
 
   free(seqs);
   return res;
 }
 
+static const char* cov_prop[2] = {"full", "diag"};
+static const char* init_prop[2] = {"random", "kmeans"};
+
 char* seq_tag_description(seq_hmm_train_param* param) {
   char* ret = NULL;
-  if (param->cov_diag) {
-    asprintf(&ret, "HMM-GMM (n=%d, k=%d, diagonal)", param->n, param->k);
-  }
-  else {
-    asprintf(&ret, "HMM-GMM (n=%d, k=%d)", param->n, param->k);
-  }
+  asprintf(&ret, "HMM-GMM (n=%d, k=%d, %s, %s)", param->n, param->k, 
+      cov_prop[param->cov_diag != 0],
+      init_prop[param->init_type != SEQ_INIT_RANDOM]);
   return ret;
 }
 

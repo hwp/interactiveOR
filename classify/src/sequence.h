@@ -20,6 +20,11 @@
 #define SEQ_HMM_TRAIN ((clfy_train_func) seq_hmm_train)
 #define SEQ_BIMODAL_TRAIN ((clfy_train_func) seq_bimodal_train)
 
+typedef enum {
+  SEQ_INIT_RANDOM,
+  SEQ_INIT_KMEANS
+} seq_init_t;
+
 typedef struct {
   unsigned int dim;
 } seq_load_param;
@@ -34,6 +39,7 @@ typedef struct {
   unsigned int k;
   unsigned int dim;
   int cov_diag;
+  seq_init_t init_type;
   gsl_rng* rng;
 } seq_hmm_train_param;
 
@@ -48,6 +54,7 @@ typedef struct {
   unsigned int k;
   unsigned int vdim;
   unsigned int adim;
+  seq_init_t init_type;
   int cov_diag;
   gsl_rng* rng;
 } seq_bimodal_train_param;

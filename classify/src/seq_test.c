@@ -12,13 +12,15 @@
 #include <stdio.h>
 #include <unistd.h>
 
-// #define _GNU_SOURCE
-// #include <fenv.h>
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <fenv.h>
 
 #include <gsl/gsl_rng.h>
 
 int main(int argc, char** argv) {
-  // feenableexcept(FE_INVALID | FE_DIVBYZERO);
+//  feenableexcept(FE_INVALID | FE_DIVBYZERO);
   debug_init();
 
   // get options
@@ -27,9 +29,11 @@ int main(int argc, char** argv) {
   unsigned int n_states = 0;
   unsigned int n_comp = 0;
   int cov_diag = 0;
+  seq_init_t init_type = SEQ_INIT_RANDOM;
 
   int opt;
-  while ((opt = getopt(argc, argv, "d:n:k:c:h")) != -1) {
+  while ((opt = getopt(argc, argv, "d:n:k:c:i:h")) != -1) {
+    int a;
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -46,6 +50,12 @@ int main(int argc, char** argv) {
       case 'c':
         cov_diag = atoi(optarg);
         break;
+      case 'i':
+        a = atoi(optarg);
+        if (a) {
+          init_type = SEQ_INIT_KMEANS;
+        }
+        break;
       default:
         showhelp = 1;
         break;
@@ -54,7 +64,7 @@ int main(int argc, char** argv) {
 
   if (showhelp || dim <= 0 || n_states <= 0 
       || n_comp <= 0 || argc - optind < 1) {
-    fprintf(stderr, "Usage: %s -d dimension -n num_states "
+    fprintf(stderr, "Usage: %s -d dimension [-i (0:random|1:kmeans)] -n num_states "
         "-k num_components [-c cov_diag] data_dir\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
@@ -81,6 +91,7 @@ int main(int argc, char** argv) {
   train_param.dim = param.dim;
   train_param.rng = rng;
   train_param.cov_diag = cov_diag;
+  train_param.init_type = init_type;
 
   double precision = clfy_cross_validate(data,
       SEQ_HMM_TRAIN, &train_param, 5, confmat);

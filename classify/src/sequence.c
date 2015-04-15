@@ -113,12 +113,30 @@ clfy_classifier* seq_hmm_train(clfy_dataset* train_data,
     }
 
     fprintf(stderr, "Training model for class %s with %u instances\n", train_data->metadata->names[i], nos);
-    fprintf(stderr, "Initiating model...\n");
-    random_init(model, seqs, nos, param->rng);
+
+    fprintf(stderr, "Initiating model ");
+    switch (param->init_type) {
+      case SEQ_INIT_RANDOM:
+        fprintf(stderr, "randomly...\n");
+        random_init(model, seqs, nos, param->rng);
+        break;
+      case SEQ_INIT_KMEANS:
+        fprintf(stderr, "with k-means...\n");
+        kmeans_init(model, seqs, nos, param->rng);
+        break;
+      default:
+        assert(0);
+        break;
+    }
     fprintf(stderr, "Initiating model DONE.\n");
+
+    assert(hmmgmm_valid(model));
+
     fprintf(stderr, "Reestimating model...\n");
     baum_welch(model, seqs, nos);
-    fprintf(stderr, "Restimating model DONE.\n");
+    fprintf(stderr, "Reestimating model DONE.\n");
+    
+    assert(hmmgmm_valid(model));
   }
 
   free(seqs);
@@ -244,15 +262,53 @@ clfy_classifier* seq_bimodal_train(clfy_dataset* train_data,
     }
 
     fprintf(stderr, "Training model for class %s with %u instances\n", train_data->metadata->names[i], nos);
-    fprintf(stderr, "Initiating model...\n");
-    random_init(vmodel, vseqs, nos, param->rng);
-    random_init(amodel, aseqs, nos, param->rng);
-    fprintf(stderr, "Initiating model DONE.\n");
-    fprintf(stderr, "Reestimating model...\n");
-    baum_welch(vmodel, vseqs, nos);
-    baum_welch(amodel, aseqs, nos);
-    fprintf(stderr, "Restimating model DONE.\n");
 
+    fprintf(stderr, "Initiating visual model ");
+    switch (param->init_type) {
+      case SEQ_INIT_RANDOM:
+        fprintf(stderr, "randomly...\n");
+        random_init(vmodel, vseqs, nos, param->rng);
+        break;
+      case SEQ_INIT_KMEANS:
+        fprintf(stderr, "with k-means...\n");
+        kmeans_init(vmodel, vseqs, nos, param->rng);
+        break;
+      default:
+        assert(0);
+        break;
+    }
+    fprintf(stderr, "Initiating visual model DONE.\n");
+    
+    fprintf(stderr, "Initiating audio model ");
+    switch (param->init_type) {
+      case SEQ_INIT_RANDOM:
+        fprintf(stderr, "randomly...\n");
+        random_init(amodel, aseqs, nos, param->rng);
+        break;
+      case SEQ_INIT_KMEANS:
+        fprintf(stderr, "with k-means...\n");
+        kmeans_init(amodel, aseqs, nos, param->rng);
+        break;
+      default:
+        assert(0);
+        break;
+    }
+    fprintf(stderr, "Initiating audio model DONE.\n");
+    
+    assert(hmmgmm_valid(vmodel));
+    assert(hmmgmm_valid(amodel));
+    
+    fprintf(stderr, "Reestimating visual model...\n");
+    baum_welch(vmodel, vseqs, nos);
+    fprintf(stderr, "Reestimating visual model DONE.\n");
+
+    fprintf(stderr, "Reestimating audio model...\n");
+    baum_welch(amodel, aseqs, nos);
+    fprintf(stderr, "Reestimating audio model DONE.\n");
+
+    assert(hmmgmm_valid(vmodel));
+    assert(hmmgmm_valid(amodel));
+    
     for (j = 0; j < nos; j++) {
       seq_free(vseqs[j]);
       seq_free(aseqs[j]);
