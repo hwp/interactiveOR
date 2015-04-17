@@ -26,10 +26,12 @@ int main(int argc, char** argv) {
   unsigned int dim = 0;
   unsigned int n_states = 0;
   unsigned int n_comp = 0;
+  seq_init_t init_type = SEQ_INIT_RANDOM;
   int cov_diag = 0;
 
   int opt;
-  while ((opt = getopt(argc, argv, "t:d:n:k:c:h")) != -1) {
+  while ((opt = getopt(argc, argv, "t:d:n:k:c:i:h")) != -1) {
+    int a;
     switch (opt) {
       case 'h':
         showhelp = 1;
@@ -49,6 +51,12 @@ int main(int argc, char** argv) {
       case 'c':
         cov_diag = atoi(optarg);
         break;
+      case 'i':
+        a = atoi(optarg);
+        if (a) {
+          init_type = SEQ_INIT_KMEANS;
+        }
+        break;
       default:
         showhelp = 1;
         break;
@@ -57,7 +65,7 @@ int main(int argc, char** argv) {
 
   if (showhelp || trials <= 0 || dim <= 0 || n_states <= 0 
       || n_comp <= 0 || argc - optind < 1) {
-    fprintf(stderr, "Usage: %s -t num_trials -d dimension "
+    fprintf(stderr, "Usage: %s -t num_trials -d dimension [-i (0:random|1:kmeans)] "
         "-n num_states -k num_components [-c cov_diag] seq_files\n", argv[0]);
     exit(EXIT_SUCCESS);
   }
@@ -86,7 +94,17 @@ int main(int argc, char** argv) {
 
   double like;
   for (i = 0; i < trials; i++) {
-    random_init(model, seqs, nost, rng);
+    switch (init_type) {
+      case SEQ_INIT_RANDOM:
+        random_init(model, seqs, nost, rng);
+        break;
+      case SEQ_INIT_KMEANS:
+        kmeans_init(model, seqs, nost, rng);
+        break;
+      default:
+        assert(0);
+        break;
+    }
     
     like = 0;
     for (j = 0; j < nost; j++) {

@@ -46,7 +46,7 @@ for ddir in $ddirs; do
   echo $ddir
   dim=`grep Dimension $ddir/README | awk '{print $2}'`
   name=`echo $ddir | sed 's:^.*/\([^/][^/]*\)/*$:\1:'` 
-  fparam="-d $dim -u $unseen -i $initm"
+  fparam="-d $dim -u $unseen -i $initm -c 1"
 
   echo $name
 
