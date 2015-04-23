@@ -80,8 +80,15 @@ for file in $files; do
   done < $file
 done
 
-plotf=`mktemp` || exit 1
-echo "reset" >> $plotf
+if [[ $format == 'gp' ]]; then
+  plotf=$output
+else
+  plotf=`mktemp` || exit 1
+fi
+
+> $plotf
+echo "#genearted by plot_roc.sh" >> $plotf
+
 case $format in
   eps) 
     echo "set terminal postscript $format enhanced color solid" >> $plotf
@@ -91,24 +98,36 @@ case $format in
     echo "set terminal pngcairo enhanced" >> $plotf
     echo "set output '$output'" >> $plotf
     ;;
+  gp)
+    echo "set term tikz size 10,10" >> $plotf
+    ;;
   *)
     fp=-p
     ;;
 esac
-echo "set title '$title'" >> $plotf
-echo "set key right bottom" >> $plotf
-echo "set xlabel 'false positive rate'" >> $plotf
-echo "set ylabel 'true positive rate'" >> $plotf
+
+echo "#set title '$title'" >> $plotf
+echo "set key right bottom spacing 2.5" >> $plotf
+echo "set xlabel 'false positive rate' offset 0,-.5" >> $plotf
+echo "set ylabel 'true positive rate' offset -2,0" >> $plotf
 echo "set size square" >> $plotf
 echo -n "plot x dt 3 notitle" >> $plotf
 for file in $files; do
-  echo -n ", '${datas[$file]}' using 3:2 w l title '${file//_/ } (${aucs[$file]})'" >> $plotf
+  echo -n ", '-' w l lw 3 title '${file} (${aucs[$file]})'" >> $plotf
 done
 echo >> $plotf
-gnuplot $fp $plotf
+
+for file in $files; do
+  awk '{print $3,$2}' ${datas[$file]} >> $plotf
+  echo "e" >> $plotf
+done
+
+if [[ $format != 'gp' ]]; then
+  gnuplot $fp $plotf
+  rm -f $plotf
+fi
 
 for dataf in "${datas[@]}"; do
   rm -f $dataf
 done
-rm -f $plotf
 
