@@ -1,18 +1,22 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: $0 [-a|categories]" >&2
+  echo "Usage: $0 [-a|-i|categories]" >&2
   exit 1
 }
 
 all="mug nonempty bottle metal plastic fragile"
+inters="knock push shake"
 
 cats=$@
 
-while getopts "a" opt; do
+while getopts "ai" opt; do
   case $opt in
     a)
       cats=$all
+      ;;
+    i)
+      cats=$inters
       ;;
     *)
       usage
@@ -74,6 +78,30 @@ do
       do 
         if [[ -f $f ]]; then
           echo fragile >> ${f%.*}.tag
+        fi
+      done
+      ;;
+    shake)
+      for f in *shake*.fvec
+      do
+        if [[ -f $f ]]; then
+          echo shake >> ${f%.*}.tag
+        fi
+      done
+      ;;
+    knock)
+      for f in *knock*.fvec
+      do
+        if [[ -f $f ]]; then
+          echo shake >> ${f%.*}.tag
+        fi
+      done
+      ;;
+    push)
+      for f in *push*.fvec
+      do
+        if [[ -f $f ]]; then
+          echo shake >> ${f%.*}.tag
         fi
       done
       ;;

@@ -130,4 +130,5 @@ fi
 for dataf in "${datas[@]}"; do
   rm -f $dataf
 done
+rm -f $tempf
 
