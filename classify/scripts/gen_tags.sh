@@ -93,7 +93,7 @@ do
       for f in *knock*.fvec
       do
         if [[ -f $f ]]; then
-          echo shake >> ${f%.*}.tag
+          echo knock >> ${f%.*}.tag
         fi
       done
       ;;
@@ -101,7 +101,7 @@ do
       for f in *push*.fvec
       do
         if [[ -f $f ]]; then
-          echo shake >> ${f%.*}.tag
+          echo push >> ${f%.*}.tag
         fi
       done
       ;;
